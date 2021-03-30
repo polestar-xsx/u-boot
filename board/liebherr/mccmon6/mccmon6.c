@@ -6,10 +6,13 @@
 
 #include <common.h>
 #include <env.h>
+#include <init.h>
+#include <serial.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/global_data.h>
 #include <asm/gpio.h>
 
 DECLARE_GLOBAL_DATA_PTR;

@@ -38,7 +38,7 @@
 #endif
 
 /* Board NAND Info. */
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 #define CONFIG_SYS_MAX_NAND_DEVICE	1	  /* Max number of */
 						  /* NAND devices */
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
@@ -178,9 +178,6 @@
 /* Miscellaneous configurable options */
 
 /* memtest works on */
-#define CONFIG_SYS_MEMTEST_START	(OMAP34XX_SDRC_CS0)
-#define CONFIG_SYS_MEMTEST_END		(OMAP34XX_SDRC_CS0 + \
-					0x01F00000) /* 31MB */
 
 /* FLASH and environment organization */
 

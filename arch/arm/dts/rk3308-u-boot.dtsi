@@ -3,6 +3,13 @@
  *(C) Copyright 2019 Rockchip Electronics Co., Ltd
  */
 
+/ {
+	aliases {
+		mmc0 = &emmc;
+		mmc1 = &sdmmc;
+	};
+};
+
 &cru {
 	u-boot,dm-pre-reloc;
 };
@@ -12,6 +19,8 @@
 };
 
 &emmc {
+	/* mmc to sram can't do dma, prevent aborts transferring TF-A parts */
+	u-boot,spl-fifo-mode;
 	u-boot,dm-pre-reloc;
 };
 

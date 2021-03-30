@@ -3,10 +3,12 @@
  * Copyright (C) 2018 Armadeus Systems
  */
 
+#include <init.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/global_data.h>
 #include <asm/io.h>
 #include <common.h>
 #include <env.h>

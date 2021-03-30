@@ -149,8 +149,6 @@ def mk_fs(config, fs_type, size, id):
         mkfs_opt = '-F 16'
     elif fs_type == 'fat32':
         mkfs_opt = '-F 32'
-    elif fs_type == 'ext4':
-        mkfs_opt = '-O ^metadata_csum'
     else:
         mkfs_opt = ''
 
@@ -167,6 +165,10 @@ def mk_fs(config, fs_type, size, id):
             % (fs_img, count), shell=True)
         check_call('mkfs.%s %s %s'
             % (fs_lnxtype, mkfs_opt, fs_img), shell=True)
+        if fs_type == 'ext4':
+            sb_content = check_output('tune2fs -l %s' % fs_img, shell=True).decode()
+            if 'metadata_csum' in sb_content:
+                check_call('tune2fs -O ^metadata_csum %s' % fs_img, shell=True)
         return fs_img
     except CalledProcessError:
         call('rm -f %s' % fs_img, shell=True)
@@ -241,8 +243,7 @@ def umount_fs(mount_point):
 # Fixture for basic fs test
 #     derived from test/fs/fs-test.sh
 #
-# NOTE: yield_fixture was deprecated since pytest-3.0
-@pytest.yield_fixture()
+@pytest.fixture()
 def fs_obj_basic(request, u_boot_config):
     """Set up a file system to be used in basic fs test.
 
@@ -335,8 +336,9 @@ def fs_obj_basic(request, u_boot_config):
         md5val.append(out.split()[0])
 
         umount_fs(mount_dir)
-    except CalledProcessError:
-        pytest.skip('Setup failed for filesystem: ' + fs_type)
+    except CalledProcessError as err:
+        pytest.skip('Setup failed for filesystem: ' + fs_type + \
+            '. {}'.format(err))
         return
     else:
         yield [fs_ubtype, fs_img, md5val]
@@ -349,8 +351,7 @@ def fs_obj_basic(request, u_boot_config):
 #
 # Fixture for extended fs test
 #
-# NOTE: yield_fixture was deprecated since pytest-3.0
-@pytest.yield_fixture()
+@pytest.fixture()
 def fs_obj_ext(request, u_boot_config):
     """Set up a file system to be used in extended fs test.
 
@@ -436,8 +437,7 @@ def fs_obj_ext(request, u_boot_config):
 #
 # Fixture for mkdir test
 #
-# NOTE: yield_fixture was deprecated since pytest-3.0
-@pytest.yield_fixture()
+@pytest.fixture()
 def fs_obj_mkdir(request, u_boot_config):
     """Set up a file system to be used in mkdir test.
 
@@ -469,8 +469,7 @@ def fs_obj_mkdir(request, u_boot_config):
 #
 # Fixture for unlink test
 #
-# NOTE: yield_fixture was deprecated since pytest-3.0
-@pytest.yield_fixture()
+@pytest.fixture()
 def fs_obj_unlink(request, u_boot_config):
     """Set up a file system to be used in unlink test.
 
@@ -535,8 +534,7 @@ def fs_obj_unlink(request, u_boot_config):
 #
 # Fixture for symlink fs test
 #
-# NOTE: yield_fixture was deprecated since pytest-3.0
-@pytest.yield_fixture()
+@pytest.fixture()
 def fs_obj_symlink(request, u_boot_config):
     """Set up a file system to be used in symlink fs test.
 

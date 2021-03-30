@@ -20,7 +20,6 @@
 
 #ifndef CONFIG_QSPI_BOOT
 /* MMC ENV related defines */
-#define CONFIG_SYS_MMC_ENV_DEV		1	/* SLOT2: eMMC(1) */
 #endif
 
 #if (CONFIG_CONS_INDEX == 1)
@@ -48,9 +47,7 @@
 #endif
 
 #ifdef CONFIG_SPL_BUILD
-#undef CONFIG_CMD_BOOTD
 #ifdef CONFIG_SPL_DFU
-#define CONFIG_SPL_LOAD_FIT_ADDRESS 0x80200000
 #define DFUARGS \
 	"dfu_bufsiz=0x10000\0" \
 	DFU_ALT_INFO_RAM
@@ -63,10 +60,7 @@
 #define CONFIG_HSMMC2_8BIT
 
 /* CPSW Ethernet */
-#define CONFIG_BOOTP_DNS2
-#define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT		10
-#define CONFIG_PHY_TI
 
 /*
  * Default to using SPI for environment, etc.
@@ -93,7 +87,7 @@
 #define CONFIG_SCSI_AHCI_PLAT
 
 /* NAND support */
-#ifdef CONFIG_NAND
+#ifdef CONFIG_MTD_RAW_NAND
 /* NAND: device related configs */
 #define CONFIG_SYS_NAND_PAGE_SIZE	2048
 #define CONFIG_SYS_NAND_OOBSIZE		64
@@ -120,7 +114,7 @@
 #ifdef CONFIG_SPL_OS_BOOT
 #define CONFIG_SYS_NAND_SPL_KERNEL_OFFS	0x00200000 /* kernel offset */
 #endif
-#endif /* !CONFIG_NAND */
+#endif /* !CONFIG_MTD_RAW_NAND */
 
 /* Parallel NOR Support */
 #if defined(CONFIG_NOR)
