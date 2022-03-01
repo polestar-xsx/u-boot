@@ -1,0 +1,8 @@
+config SYS_BOARD
+	default "ge_fdc"
+
+config SYS_VENDOR
+	default "conti"
+
+config SYS_CONFIG_NAME
+	default "ge_fdc"

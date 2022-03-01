@@ -1,0 +1,1 @@
+obj-y	+= ge_fdc.o
