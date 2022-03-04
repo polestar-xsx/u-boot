@@ -44,3 +44,4 @@ obj-$(CONFIG_ARCH_SUNXI) += sunxi/
 obj-$(CONFIG_VF610) += vf610/
 obj-$(CONFIG_ARCH_S5P4418) += s5p4418/
 obj-$(CONFIG_ARCH_NEXELL) += s5p-common/
+obj-$(CONFIG_ARCH_D1H) += d1h/
