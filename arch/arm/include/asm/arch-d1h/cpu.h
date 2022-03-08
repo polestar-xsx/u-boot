@@ -1,5 +1,5 @@
-#ifndef __CPU_H
-#define __CPU_H
+#ifndef __ASM_ARCH_D1H_CPU_H_
+#define __ASM_ARCH_D1H_CPU_H_
 
 /***************************************************************************
 * S3CTRL Registers
@@ -971,4 +971,6 @@
 #define CPU__nGICD_ICENABLER_Cfg         0xffff0000UL
 #define CPU__nGICD_ISENABLER_Cfg         0x0000ffffUL
 
-#endif __CPU_H
+#define CPU__nVerificationTimeoutCnt     1000
+
+#endif
