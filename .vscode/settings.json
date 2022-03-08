@@ -164,5 +164,10 @@
         "include/configs/at91sam9[1-9]*":true,
         "include/configs/at91sam9[a-m]*":true,
         "include/configs/at91sam9[o-z]*":true,
-    } 
+    },
+    "files.associations": {
+        "common.h": "c",
+        "global_data.h": "c",
+        "net.h": "c"
+    }
 } 
