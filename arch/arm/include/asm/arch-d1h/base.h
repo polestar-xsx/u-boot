@@ -16,6 +16,8 @@
 #define LBSC_BASE		0xEE220200
 #define TMU_BASE		0xE61E0000
 #define GPIO5_BASE		0xE6055000
+/*Counter Module Control and Status Registers*/
+#define CNTCR_BASE        0xE6080000
 
 /* SCIF */
 #define SCIF0_BASE		0xE6E60000

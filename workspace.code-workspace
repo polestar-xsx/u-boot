@@ -7,7 +7,8 @@
 	"settings": {
 		"files.associations": {
 			"irq_func.h": "c",
-			"io.h": "c"
+			"io.h": "c",
+			"sysmap.h": "c"
 		}
 	}
 }
