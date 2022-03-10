@@ -90,6 +90,13 @@
 #define PUEN_USB3_OVC   (1 <<  4)
 #define PUEN_USB3_PWEN  (1 <<  3)
 
+/* CLOCK*/
+#define CLK__D1H_CLOCK_CTRL       0xE6150000UL
+#define CLK__nSRCR4_Addr           0xE61500BCUL   /* Address of Software reset register 4 */
+#define CLK__nSRSTCLR4_Addr        0xE6150950UL   /* Address of Software reset clear register 4 */
+#define CLK__nDBRSTLCK_Addr        0xE6794000UL   /* Address of DBSC Reset Lock Register */
+#define CLK__nDBRST_Addr           0xE6794008UL   /* Address of DBSC RESET Register */
+
 #ifndef __ASSEMBLY__
 #include <asm/types.h>
 

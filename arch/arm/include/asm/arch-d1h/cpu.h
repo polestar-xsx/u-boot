@@ -971,6 +971,6 @@
 #define CPU__nGICD_ICENABLER_Cfg         0xffff0000UL
 #define CPU__nGICD_ISENABLER_Cfg         0x0000ffffUL
 
-#define CPU__nVerificationTimeoutCnt     1000
+#define CPU__nVERIFICATION_TIMEOUT     1000
 
 #endif
