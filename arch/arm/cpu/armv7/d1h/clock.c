@@ -83,7 +83,7 @@ void plls_init(void)
 
 void clocktree_init(void)
 {
-   CLK__tunCkscCR2 unTemp, unTemp1;   /* Temporary variables for read-modify-write */
+   CLK__tunCkscCR2 unTemp;   /* Temporary variables for read-modify-write */
    
    /* Configure Clock Pulse Generator registers */
    while(CLK__xCPG->u32Frqcrb & CLK__nFrqcrbKick_Msk)
@@ -97,7 +97,6 @@ void clocktree_init(void)
 
    /* Select PLL1 as clock source and then modify the Z2CKSEL1 */
    unTemp.u32word             = CLK__xCPG->u32Cksccr2;   /* Read the CKSCCR2 register */
-   unTemp1.u32word            = CLK__nCPG_CKSCCR2_Cfg;   /* Get the settings */
    CLK__xCPG->u32Cksccr     &= ~ (CLK__nZ2Sel_Msk);
    __udelay(10UL);   /* 10.1.5.4: Wait 10us after changing between non-SSCG PLL1 and SSCG PLLS clock  via the CKSCCR register */
    unTemp.bits.bi32Z2CkSel1   = CLK__nCPG_Z2CKSEL1_Cfg;   /* Modify the Z2CKSEL1 */

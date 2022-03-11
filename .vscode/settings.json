@@ -168,6 +168,7 @@
     "files.associations": {
         "common.h": "c",
         "global_data.h": "c",
-        "net.h": "c"
+        "net.h": "c",
+        "system.h": "c"
     }
 } 
