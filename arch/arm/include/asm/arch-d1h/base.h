@@ -101,6 +101,8 @@
 
 /* SFMA register base address */
 #define SFMA_BASE                         0xfec08000UL
+/*SDRAM register base address*/
+#define SDRAM_BASE       0xE6790010UL
 
 #ifndef __ASSEMBLY__
 #include <asm/types.h>
