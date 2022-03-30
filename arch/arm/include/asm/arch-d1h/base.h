@@ -104,22 +104,5 @@
 /*SDRAM register base address*/
 #define SDRAM_BASE       0xE6790010UL
 
-#ifndef __ASSEMBLY__
-#include <asm/types.h>
-
-/* RWDT */
-struct rcar_rwdt {
-	u32 rwtcnt;	/* 0x00 : 16 with 16 = 32bit write */
-	u32 rwtcsra;	/* 0x04 : 8  with 24 = 32bit write */
-	u32 rwtcsrb;	/* 0x08 : 8  with 24 = 32bit write */
-};
-
-/* SWDT */
-struct rcar_swdt {
-	u32 swtcnt;	/* 0x00 : 16 with 16 = 32bit write */
-	u32 swtcsra;	/* 0x04 : 8  with 24 = 32bit write */
-	u32 swtcsrb;	/* 0x08 : 8  with 24 = 32bit write */
-};
-#endif
-
+#define RWTCSRA	         0xE6150904UL
 #endif /* __ASM_ARCH_D1H_BASE_H */

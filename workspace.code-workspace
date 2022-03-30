@@ -8,7 +8,9 @@
 		"files.associations": {
 			"irq_func.h": "c",
 			"io.h": "c",
-			"sysmap.h": "c"
+			"sysmap.h": "c",
+			"serial.h": "c",
+			"post.h": "c"
 		}
 	}
 }
