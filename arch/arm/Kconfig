@@ -938,7 +938,7 @@ config ARCH_QEMU
 	imply DM_RTC
 	imply RTC_PL031
 
-config ARCH_D1H
+config TARGET_D1H
 	bool "Renesas ARM D1H"
 	select CPU_V7A
 	select SPL
