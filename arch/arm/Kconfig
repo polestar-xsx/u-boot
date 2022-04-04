@@ -937,6 +937,7 @@ config ARCH_QEMU
 	imply DM_RNG
 	imply DM_RTC
 	imply RTC_PL031
+
 config ARCH_D1H
 	bool "Renesas ARM D1H"
 	select CPU_V7A
@@ -945,7 +946,6 @@ config ARCH_D1H
 	select DM_SERIAL
 	select DM_SPI
 	select DM_SPI_FLASH
-	select PL01X_SERIAL
 	select SPI
 	select SPI_FLASH
 	imply CMD_DM
@@ -2029,7 +2029,7 @@ source "board/variscite/dart_6ul/Kconfig"
 source "board/vscom/baltos/Kconfig"
 source "board/phytium/durian/Kconfig"
 source "board/xen/xenguest_arm64/Kconfig"
-
+source "board/conti/ge_fdc/Kconfig"
 source "arch/arm/Kconfig.debug"
 
 endmenu

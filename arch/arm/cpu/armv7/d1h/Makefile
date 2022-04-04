@@ -7,4 +7,8 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y += pfc.o
+obj-y += clock.o
+obj-y += cpu.o
+obj-y += sdram.o
+obj-y += sfma.o
+obj-y += timer.o
