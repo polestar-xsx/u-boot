@@ -944,10 +944,6 @@ config TARGET_D1H
 	select SPL
 	select DM
 	select DM_SERIAL
-	select DM_SPI
-	select DM_SPI_FLASH
-	select SPI
-	select SPI_FLASH
 	imply CMD_DM
 
 config ARCH_RMOBILE
