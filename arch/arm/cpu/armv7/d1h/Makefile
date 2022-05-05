@@ -12,3 +12,6 @@ obj-y += cpu.o
 obj-y += sdram.o
 obj-y += sfma.o
 obj-y += timer.o
+ifneq ($(CONFIG_SPL_BUILD),)
+obj-y += spl.o
+endif
