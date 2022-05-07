@@ -940,6 +940,7 @@ config ARCH_QEMU
 
 config TARGET_D1H
 	bool "Renesas ARM D1H"
+	select SUPPORT_SPL
 	select CPU_V7A
 	select SPL
 	select DM
