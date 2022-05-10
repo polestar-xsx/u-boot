@@ -1,4 +1,6 @@
 if TARGET_D1H
+config SYS_SOC
+	default "d1h"
 
 config SYS_BOARD
 	default "ge_fdc"
