@@ -4,7 +4,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/timer.h>
 
-volatile CLK_tstD1H_ClkCtrl * CLK__xCPG = (volatile tstd1h_clkctrl *)(CLK__D1H_CLOCK_CTRL);
+volatile CLK_tstD1H_ClkCtrl * CLK__xCPG = (volatile CLK_tstD1H_ClkCtrl *)(CLK__D1H_CLOCK_CTRL);
 
 
 void plls_init(void)
@@ -52,13 +52,13 @@ void plls_init(void)
 
     __udelay(300UL);   /* 10.1.5.3(5): wait 300us after changing PLL SSCG mode*/
 /*Init pll3*/
-    (*(volatile uint32 *)(CLK__nDBRSTLCK_Addr)) = CLK__nDisableDbscResetLock;   /* Disable the DDR3-SDRAM Memory Controller (DBSC) reset lock */
-    (*(volatile uint32 *)(CLK__nDBRST_Addr))    = 0x0UL;   /* De-assert DBSC reset */
-    (*(volatile uint32 *)(CLK__nDBRSTLCK_Addr)) = 0x0UL;   /* DBSC reset lock enabled */
+    (*(volatile u32 *)(CLK__nDBRSTLCK_Addr)) = CLK__nDisableDbscResetLock;   /* Disable the DDR3-SDRAM Memory Controller (DBSC) reset lock */
+    (*(volatile u32 *)(CLK__nDBRST_Addr))    = 0x0UL;   /* De-assert DBSC reset */
+    (*(volatile u32 *)(CLK__nDBRSTLCK_Addr)) = 0x0UL;   /* DBSC reset lock enabled */
     /* 1. DBSC3 mstp ON, SMSTPCR4[30] = 1 */
     CLK__xCPG->u32Smstpcr4 |= CLK__nDBSC3_Msk;
     /* 2. DBSC3 soft reset ON, SRCR4[30] = 1 */
-    (*(volatile uint32 *)(CLK__nSRCR4_Addr))   |= CLK__nDBSC3_Msk;   /* Assert DBSC3-soft-reset */
+    (*(volatile u32 *)(CLK__nSRCR4_Addr))   |= CLK__nDBSC3_Msk;   /* Assert DBSC3-soft-reset */
 
     /* 3. PLL3 setting */
     /* Preserve CKSEL by read-modify-write operation */
@@ -77,7 +77,7 @@ void plls_init(void)
     /* 4. DBSC3 mstp OFF, SMSTPCR4[30] = 0 */
     CLK__xCPG->u32Smstpcr4 &= (~CLK__nDBSC3_Msk);
     /* 5. DBSC3 soft reset OFF, SRSTCLR4[30] = 1 */
-    (*(volatile uint32 *)(CLK__nSRSTCLR4_Addr)) |= CLK__nDBSC3_Msk;
+    (*(volatile u32 *)(CLK__nSRSTCLR4_Addr)) |= CLK__nDBSC3_Msk;
 }
 
 
