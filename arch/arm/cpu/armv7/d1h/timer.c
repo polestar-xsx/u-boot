@@ -13,6 +13,7 @@ int timer_init(void)
 
    /* Start generic timer */
    ((volatile cntcr_regs *)(CNTCR_BASE))->cntcr_en = 1;
+   return 0;
 }
 
 
@@ -22,7 +23,7 @@ void __udelay(unsigned long usec)
     volatile cntcr_regs *ptimer_reg = (cntcr_regs *)(CNTCR_BASE);
 
     /* Read generic timer counter */
-    time_start = (u32)(cntcr_regs->cntcv);
+    time_start = (u32)(ptimer_reg->cntcv);
 
     /* Validate time delay value */
     if ((usec > 0UL) && (usec < TIMER_DELAY_MAX_US))
@@ -32,7 +33,7 @@ void __udelay(unsigned long usec)
 
         do {
             /* Read generic timer counter */
-            time_current = (u32)(cntcr_regs->cntcv);
+            time_current = (u32)(ptimer_reg->cntcv);
         } while ((time_current - time_start) < usec);
     }
 }

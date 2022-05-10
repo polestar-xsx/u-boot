@@ -32,7 +32,7 @@ bool sdram_init(void);
 #define SDRAM__nMemTestStartAddress            0x40000000UL
 #define SDRAM__nMemTestAddressIncrement        0x10000000UL
 #define SDRAM__nMemTestEndAddress              0xBFFFFFFFUL
-
+#define SDRAM__nDBSC3_BaseAddr                 0xE6790010UL
 /***************************************************************************
 * SDRAM TIMING CONFIGURATION
 ****************************************************************************/
@@ -806,37 +806,37 @@ typedef struct {
 } * SDRAM__tpstDBSC3Reg;
 
 typedef struct {
-   uint32 u32DBTR0;  // SDRAM Timing Register 0
-   uint32 u32DBTR1;
+   u32 u32DBTR0;  // SDRAM Timing Register 0
+   u32 u32DBTR1;
    /* u32DBTR2 does not exist */
    SDRAM_tstTimingCfg stTimingCfg;
-   uint32 u32DBCONF0;
-   uint32 u32DBRNK0;
-   uint32 u32DBADJ0;
-   uint32 u32DBADJ2;
-   uint32 u32DBWT0CNF0;
-   uint32 u32DBCALTR;
+   u32 u32DBCONF0;
+   u32 u32DBRNK0;
+   u32 u32DBADJ0;
+   u32 u32DBADJ2;
+   u32 u32DBWT0CNF0;
+   u32 u32DBCALTR;
    SDRAM_tstRefreshCfg stRefreshCfg;
-   uint32 u32DBRFEN;
+   u32 u32DBRFEN;
 } SDRAM_tstTimingConfig;
 
 /* Struct of DDR3 PHY settings */
 typedef struct {
-   uint32 u32Phy0003A;
-   uint32 u32Phy0003B;
-   uint32 u32Phy0004;
-   uint32 u32Phy0008;
-   uint32 u32Phy0020;
-   uint32 u32Phy0022;
-   uint32 u32Phy0023;
-   uint32 u32Phy0024;
-   uint32 u32Phy0025;
-   uint32 u32Phy0026;
-   uint32 u32Phy0027;
-   uint32 u32Phy0028;
-   uint32 u32Phy0029;
-   uint32 u32Phy0091;
-   uint32 u32Phy0099;
+   u32 u32Phy0003A;
+   u32 u32Phy0003B;
+   u32 u32Phy0004;
+   u32 u32Phy0008;
+   u32 u32Phy0020;
+   u32 u32Phy0022;
+   u32 u32Phy0023;
+   u32 u32Phy0024;
+   u32 u32Phy0025;
+   u32 u32Phy0026;
+   u32 u32Phy0027;
+   u32 u32Phy0028;
+   u32 u32Phy0029;
+   u32 u32Phy0091;
+   u32 u32Phy0099;
 } SDRAM_tstPhyConfig;
 
 #endif /* __ASM_ARCH_D1H_SDRAM_H__ */

@@ -41,13 +41,13 @@ unsigned long get_timer(unsigned long base);
 /**
 * Description: Generic timer counter module and status registers
 */
-struct cntcr_regs {
+typedef struct{
     u32 cntcr_en : 1;
     u32 cntcr_hdbg : 1;
     u32 cntcr_reserved : 30;
     u32 cntsr;            /* Counter status register */
     u64 cntcv;            /* Counter count value register */
-};
+}cntcr_regs;
 
 
 #endif

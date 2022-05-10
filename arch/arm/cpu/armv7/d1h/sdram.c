@@ -3,7 +3,7 @@
 #include <asm/arch/base.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/timer.h>
-#include <arm/arch/sdram.h>
+#include <asm/arch/sdram.h>
 
 static volatile SDRAM__tpstDBSC3Reg SDRAM__xDBSC3 = (SDRAM__tpstDBSC3Reg )(SDRAM__nDBSC3_BaseAddr);
 
@@ -28,13 +28,13 @@ static void sdram__waitforphystatus(u32 u32Addr, u32 u32Flag)
    __udelay(1UL);
 }
 
-static void sdram__waitforphystatusclr(uint32 u32Addr, uint32 u32Flag)
+static void sdram__waitforphystatusclr(u32 u32Addr, u32 u32Flag)
 {
    SDRAM__xDBSC3->u32DBPDRGA = u32Addr;
    while ((SDRAM__xDBSC3->u32DBPDRGD & u32Flag) == u32Flag);
 
    /*Wait additional 32 PHY cycles (122ns) after bit is clear*/
-   SYN__vDelayUs(1UL);
+   __udelay(1UL);
 }
 /**********************************************************************************
 * Description  : This function checks the error flags
@@ -66,11 +66,11 @@ static void sdram__setphy_3x(u32 u32Addr)
 }
 
 /* To substitute the repeated sequences */
-static void sdram__setphy0A0tophy100(bool boIs16BitsMode, uint32 u32SetVal)
+static void sdram__setphy0A0tophy100(bool boIs16BitsMode, u32 u32SetVal)
 {
    sdram__setphy(SDRAM__nDDR3PHY0A0_Addr, u32SetVal);
    sdram__setphy(SDRAM__nDDR3PHY0C0_Addr, u32SetVal);
-   if (boIs16BitsMode == False)
+   if (boIs16BitsMode == false)
    {  /*Excluded for 16-bits mode*/
       sdram__setphy(SDRAM__nDDR3PHY0E0_Addr, u32SetVal);
       sdram__setphy(SDRAM__nDDR3PHY100_Addr, u32SetVal);
@@ -94,7 +94,7 @@ bool sdram__initddr3(void)
    u32 u32Dqsgd_0c, u32Gatesl_0c, u32Rdqsd_0c, u32Rdqsnd_0c, u32Rbd_0c;
    u32 u32Bdlcount_0c, u32Bdlcount_0c_div4, u32Bdlcount_0c_div8;
    bool boIs16BitsMode = false;   /* The width of the external bus is 16 bits */
-   uint8 u8MaxLoopCnt;   /*Maximum loop count for Gate Training*/
+   u8 u8MaxLoopCnt;   /*Maximum loop count for Gate Training*/
 
    SDRAM_tstTimingCfg stTimingCfg = {SDRAM__nDBSC3_DBTR3,\
                                      SDRAM__nDBSC3_DBTR4,\
@@ -582,7 +582,8 @@ bool sdram__initddr3(void)
       sdram__setphy0A3tophy103(0x00000000);   /* E12 - E19 */
    }
 
-   SDRAM__xDBSC3->u32DBPDLCK      = SDRAM__nDBSC3_DBPDLCK_DisableAccess;    
+   SDRAM__xDBSC3->u32DBPDLCK      = SDRAM__nDBSC3_DBPDLCK_DisableAccess;  
+   return true;  
 }
 
 /**********************************************************************************
@@ -611,12 +612,12 @@ bool sdram__checkddr3(void)
 
    while (u32Addr < SDRAM__nMemTestEndAddress)
    {
-      pu32Addr    = (volatile uint32 *)(u32Addr);
+      pu32Addr    = (volatile u32 *)(u32Addr);
       *pu32Addr   = SDRAM__nMemTestDataPattern;
       u32Data     = *pu32Addr;
       if (u32Data != SDRAM__nMemTestDataPattern)
       {
-         boResult = False;
+         boResult = false;
       }
       u32Addr += SDRAM__nMemTestAddressIncrement;
    }

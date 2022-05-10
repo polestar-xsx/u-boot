@@ -83,6 +83,11 @@ SFMA macro definitions
 #define SFMA__nPDSCFast                         0
 #define SFMA__nPDSCSlow                         1
 
+/* port drive strength selection of SFMA ports
+   values: 0xFFFFF000UL = Fast
+           0x55555000UL = Slow */
+#define SFMA__nPortDriveStrength                   0xFFFFF000UL
+
 /* NULL definitions */
 #define SFMA__nU8NULL                          0x00U
 #define SFMA__nU8REVNULL					    0xffU
@@ -457,7 +462,7 @@ typedef struct {
     SFMA__tunSMDMCR unSMDMCR;      /* 0x60 - SPI mode dummy cycle setting register       */
     u32 u32SMDRENR;              /* 0x64 - SPI mode DDR enable register                */
     u32 u32SPODLY;               /* 0x68 - Output data delay register                  */
-} SFMA_tstReg;
+} SFMA__tstReg;
 
 typedef struct {
     u32	u32Pmmr;                    /* 0x00         */

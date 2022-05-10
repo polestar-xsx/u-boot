@@ -7,7 +7,7 @@
 
 /* Mapped to PFC Register */
 volatile SFMA__tstPfcReg * SFMA__pstPFC = (volatile SFMA__tstPfcReg *)(PFC_BASE);
-volatile SFMA__tstReg * SFMA__pstReg = (volatile SFMA__tstReg *)(SFMA_BASE)
+volatile SFMA__tstReg * SFMA__pstReg = (volatile SFMA__tstReg *)(SFMA_BASE);
 /* Intialize all SFMA Ports */
 void sfma__ioinit(void)
 {
@@ -78,19 +78,19 @@ void sfma__initflashcfg(void)
     /* Data Read Configuration */
     SFMA__pstReg->unDRCR.u32word = SFMA__nDataReadConfig;
     /* Common configuration */
-    SFMA__pstReg->unCMNCR.u32word = (SFMA__nCommonCtrlCfg | SFMA__nSPIMode | SFMA__nSDRCtrlCfg | (uint32)SFMA__nsfmaChannelMode);
+    SFMA__pstReg->unCMNCR.u32word = (SFMA__nCommonCtrlCfg | SFMA__nSPIMode | SFMA__nSDRCtrlCfg | (u32)SFMA__nsfmaChannelMode);
     /* SSL delay configuration */
     SFMA__pstReg->u32SSLDR = SFMA__nSSLDelay;
 #if (CLK__nCPG_SFMA_EXSRC_Cfg == 0x1UL)
     /* Set SPI Mode frequency @ 43.5 MHz default */
-    SFMA__pstReg->u32SPBCR = ((uint32)((SFMA_nPLLDiv3_44MHz & 0x0F) << 8));
+    SFMA__pstReg->u32SPBCR = ((u32)((SFMA_nPLLDiv3_44MHz & 0x0F) << 8));
     /* Set delay/clock settings */
     SFMA__pstReg->u32SPODLY = (SFMA__nSPODLY_NoDelay);
     SFMA__pstReg->u32CKDLY = (SFMA__nCKDLYOC_PllDiv3);
 
 #elif (PMAN__nCPG_SFMA_EXSRC_Cfg == 0x2UL)
     /* Set SPI Mode frequency @ 33 MHz default */
-    SFMA__pstReg->u32SPBCR = ((uint32)((SFMA_nenFreq033MHz & 0x0F) << SFMA__n1byteShift));
+    SFMA__pstReg->u32SPBCR = ((u32)((SFMA_nenFreq033MHz & 0x0F) << SFMA__n1byteShift));
     /* Set delay/clock settings */
     SFMA__pstReg->u32SPODLY = (SFMA__nSPODLY_NoDelay);
     SFMA__pstReg->u32CKDLY = (SFMA__nCKDLYOC_PllDiv4);
