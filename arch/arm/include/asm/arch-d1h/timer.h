@@ -3,7 +3,7 @@
 
 #include <asm/types.h>
 
-int timer_init(void);
+void time_init(void);
 
 void __udelay(unsigned long usec);
 

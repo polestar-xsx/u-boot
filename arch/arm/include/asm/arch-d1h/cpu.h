@@ -20,7 +20,10 @@ void cpu_set_s3ctrl(void);
 void cpu_qos_dbsc3init(void);
 
 #define CPU__GAP32(start,finish)    u32 u32__##start##_##finish[((finish)-(start))/4]
-
+/**
+* DMA notification function type.
+*/
+typedef void(*CPU_tpvDMANotificationFunc) (u32 u32ChunkNum);
 /***************************************************************************
 * S3CTRL Registers
 ****************************************************************************/

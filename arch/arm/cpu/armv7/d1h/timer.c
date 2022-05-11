@@ -3,7 +3,7 @@
 #include <asm/arch/base.h>
 #include <asm/arch/timer.h>
 
-int timer_init(void)
+void time_init(void)
 {
     /* Stop generic timer */
    ((volatile cntcr_regs *)(CNTCR_BASE))->cntcr_en = 0;
@@ -13,7 +13,6 @@ int timer_init(void)
 
    /* Start generic timer */
    ((volatile cntcr_regs *)(CNTCR_BASE))->cntcr_en = 1;
-   return 0;
 }
 
 

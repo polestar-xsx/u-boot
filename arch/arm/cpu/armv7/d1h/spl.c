@@ -9,7 +9,7 @@
 
 void board_init_f(ulong dummy)
 {
-    timer_init();
+    time_init();
     cpu_init();
     clock_init();
     sdram_init();
