@@ -1,6 +1,26 @@
 #ifndef __ASM_ARCH_D1H_CPU_H_
 #define __ASM_ARCH_D1H_CPU_H_
 
+void cpu_init(void);
+
+void cpu_set_qosparams(void);
+
+void cpu_set_media_axi(void);
+
+void cpu_set_cci_axi(void);
+
+void cpu_set_sys_axi(void);
+
+void cpu_set_mxi(void);
+
+void cpu_set_cci400(void);
+
+void cpu_set_s3ctrl(void);
+
+void cpu_qos_dbsc3init(void);
+
+#define CPU__GAP32(start,finish)    u32 u32__##start##_##finish[((finish)-(start))/4]
+
 /***************************************************************************
 * S3CTRL Registers
 ****************************************************************************/
@@ -67,7 +87,7 @@
 #define	CPU__nMXI_BaseAddr 		           0xFE960000UL
 #define	CPU__nMXI_CR_BaseAddr             (CPU__nMXI_BaseAddr + 0x0040UL)
 #define	CPU__nMXI_QOS_BaseAddr 		       0xFE960300UL
-#define	CPU__nMXIR_QOS_BaseAddr		       (0xFE960200UL + 3*sizeof(uint32))
+#define	CPU__nMXIR_QOS_BaseAddr		       (0xFE960200UL + 3*sizeof(u32))
 
 /* SYS AXI */
 #define CPU__nSYS_AXI_SYX64TO128_BaseAddr  0xFF800300UL
@@ -154,7 +174,82 @@
 #define GICC__nEOIR                   (0x0010)    /* End of Interrupt Register        */
 #define GICC__nPMR                    (0x0004)    /* CPU Interface Priority Mask Register */
 
+/*
+Note: Modify this if you uncomment one of the addresses for
+Media AXI above.
+*/
+#define CPU__ptstS3CTRL_reg      ((volatile CPU__tstS3CTRL_Config *)CPU__nS3C_QoS_Reg_BaseAddr)
+#define CPU__ptstS3C_QOS_CCI0    ((volatile CPU__tstS3C_QOS_Config *)CPU__nS3C_QoSCCI0_BaseAddr)
+#define CPU__ptstS3C_QOS_CCI1    ((volatile CPU__tstS3C_QOS_Config *)CPU__nS3C_QoSCCI1_BaseAddr)
+#define CPU__ptstS3C_QOS_MXI     ((volatile CPU__tstS3C_QOS_Config *)CPU__nS3C_QoSMXI_BaseAddr)
+#define CPU__ptstS3C_QOS_AXI     ((volatile CPU__tstS3C_QOS_Config *)CPU__nS3C_QoSAXI_BaseAddr)
+#define CPU__ptstCCI_400_reg     ((volatile CPU__tstCCI400_QoS_Config *)CPU__nCCI_400_BaseAddr)
+#define CPU__ptstC400_OR_reg     ((volatile CPU__tstCCI400_QoSOverrideConfig *)CPU__nCCI_400_OverReg_BaseAddr)
+#define CPU__ptstC400_S1QOS_reg  ((volatile CPU__tstCCI400_QoSCntrlConfig *)CPU__nCCI_400_QosCntrl1_BaseAddr)
+#define CPU__ptstC400_S2QOS_reg  ((volatile CPU__tstCCI400_QoSCntrlConfig *)CPU__nCCI_400_QosCntrl2_BaseAddr)
+#define CPU__ptstC400_S3QOS_reg  ((volatile CPU__tstCCI400_QoSCntrlConfig *)CPU__nCCI_400_QosCntrl3_BaseAddr)
+#define CPU__ptstDBSC3_R_QOS     ((volatile CPU__tstDBSC3_QOS_Config *)CPU__nDBCS3_0_QOS_R0_BaseAddr)
+#define CPU__ptstDBSC3_W_QOS     ((volatile CPU__tstDBSC3_QOS_Config *)CPU__nDBCS3_0_QOS_W0_BaseAddr)
 
+#define CPU__ptstMXI_reg         ((volatile CPU__tstMXI_Config *)CPU__nMXI_BaseAddr)
+#define CPU__ptstMXI_CR_reg      ((volatile CPU__tstMXI_CR_Config *)CPU__nMXI_CR_BaseAddr)
+#define CPU__ptstMXI_QOS_reg     ((volatile CPU__tstMXI_QOS_Config *)CPU__nMXI_QOS_BaseAddr)
+#define CPU__ptstMXIR_QOS_reg     ((volatile CPU__tstMXIR_QOS_Config *)CPU__nMXIR_QOS_BaseAddr)
+
+#define CPU__ptstSYS_AXI_SYX64   ((volatile CPU__tstAXI_Config *)CPU__nSYS_AXI_SYX64TO128_BaseAddr)
+#define CPU__ptstSYS_AXI_AVB     ((volatile CPU__tstAXI_Config *)CPU__nSYS_AXI_AVB_BaseAddr)
+#define CPU__ptstSYS_AXI_IMUX0   ((volatile CPU__tstAXI_Config *)CPU__nSYS_AXI_IMUX0_BaseAddr)
+#define CPU__ptstSYS_AXI_IMUX1   ((volatile CPU__tstAXI_Config *)CPU__nSYS_AXI_IMUX1_BaseAddr)
+#define CPU__ptstSYS_AXI_IMUX2   ((volatile CPU__tstAXI_Config *)CPU__nSYS_AXI_IMUX2_BaseAddr)
+#define CPU__ptstSYS_AXI_MMUDS   ((volatile CPU__tstAXI_Config *)CPU__nSYS_AXI_MMUDS_BaseAddr)
+#define CPU__ptstSYS_AXI_MMUM    ((volatile CPU__tstAXI_Config *)CPU__nSYS_AXI_MMUM_BaseAddr)
+#define CPU__ptstSYS_AXI_MMUS0   ((volatile CPU__tstAXI_Config *)CPU__nSYS_AXI_MMUS0_BaseAddr)
+#define CPU__ptstSYS_AXI_MMUS1   ((volatile CPU__tstAXI_Config *)CPU__nSYS_AXI_MMUS1_BaseAddr)
+#define CPU__ptstSYS_AXI_SDS0    ((volatile CPU__tstAXI_Config *)CPU__nSYS_AXI_SDS0_BaseAddr)
+#define CPU__ptstSYS_AXI_SDS1    ((volatile CPU__tstAXI_Config *)CPU__nSYS_AXI_SDS1_BaseAddr)
+#define CPU__ptstSYS_AXI_USB20   ((volatile CPU__tstAXI_Config *)CPU__nSYS_AXI_USB20_BaseAddr)
+#define CPU__ptstSYS_AXI_MLB     ((volatile CPU__tstAXI_Config *)CPU__nSYS_AXI_MLB_BaseAddr)
+#define CPU__ptstSYS_AXI_AX2M    ((volatile CPU__tstAXI_Config *)CPU__nSYS_AXI_AX2M_BaseAddr)
+#define CPU__ptstSYS_AXI_CCI     ((volatile CPU__tstAXI_Config *)CPU__nSYS_AXI_CCI_BaseAddr)
+#define CPU__ptstSYS_AXI_CS      ((volatile CPU__tstAXI_Config *)CPU__nSYS_AXI_CS_BaseAddr)
+#define CPU__ptstSYS_AXI_DDM     ((volatile CPU__tstAXI_Config *)CPU__nSYS_AXI_DDM_BaseAddr)
+#define CPU__ptstSYS_AXI_NANDC   ((volatile CPU__tstAXI_Config *)CPU__nSYS_AXI_NANDC_BaseAddr)
+#define CPU__ptstSYS_AXI_DHDX    ((volatile CPU__tstAXI_Config *)CPU__nSYS_AXI_DHDX_BaseAddr)
+#define CPU__ptstSYS_AXI_SDM0    ((volatile CPU__tstAXI_Config *)CPU__nSYS_AXI_SDM0_BaseAddr)
+#define CPU__ptstSYS_AXI_SDM1    ((volatile CPU__tstAXI_Config *)CPU__nSYS_AXI_SDM1_BaseAddr)
+#define CPU__ptstSYS_AXI_TRKF    ((volatile CPU__tstAXI_Config *)CPU__nSYS_AXI_TRKF_BaseAddr)
+#define CPU__ptstSYS_AXI_UDM0    ((volatile CPU__tstAXI_Config *)CPU__nSYS_AXI_UDM0_BaseAddr)
+#define CPU__ptstSYS_AXI_UDM1    ((volatile CPU__tstAXI_Config *)CPU__nSYS_AXI_UDM1_BaseAddr)
+#define CPU__ptstSYS_AXI256_SYX  ((volatile CPU__tstAXI_Config *)CPU__nSYS_AXI256_SYX_BaseAddr)
+#define CPU__ptstSYS_AXI256_MXI  ((volatile CPU__tstAXI_Config *)CPU__nSYS_AXI256_MXI_BaseAddr)
+
+#define CPU__ptstCCI_AXI_MMUS0   ((volatile CPU__tstAXI_Config *)CPU__nCCI_AXI_MMUS0_BaseAddr)
+#define CPU__ptstCCI_AXI_MMUS1   ((volatile CPU__tstAXI_Config *)CPU__nCCI_AXI_MMUS1_BaseAddr)
+#define CPU__ptstCCI_AXI_SYX2    ((volatile CPU__tstAXI_Config *)CPU__nCCI_AXI_SYX2_BaseAddr)
+#define CPU__ptstCCI_AXI_MMUDS   ((volatile CPU__tstAXI_Config *)CPU__nCCI_AXI_MMUDS_BaseAddr)
+#define CPU__ptstCCI_AXI_MMUM    ((volatile CPU__tstAXI_Config *)CPU__nCCI_AXI_MMUM_BaseAddr)
+#define CPU__ptstCCI_AXI_MXI     ((volatile CPU__tstAXI_Config *)CPU__nCCI_AXI_MXI_BaseAddr)
+
+#define CPU__ptstMEDIA_AXI_MXR      ((volatile CPU__tstAXI_Config *)CPU__nMEDIA_AXI_MXR_BaseAddr)
+#define CPU__ptstMEDIA_AXI_MXW      ((volatile CPU__tstAXI_Config *)CPU__nMEDIA_AXI_MXW_BaseAddr)
+#define CPU__ptstMEDIA_AXI_VIN0W    ((volatile CPU__tstAXI_Config *)CPU__nMEDIA_AXI_VIN0W_BaseAddr)
+#define CPU__ptstMEDIA_AXI_VSPDU0CR ((volatile CPU__tstAXI_Config *)CPU__nMEDIA_AXI_VSPDU0CR_BaseAddr)
+#define CPU__ptstMEDIA_AXI_VSPDU0CW ((volatile CPU__tstAXI_Config *)CPU__nMEDIA_AXI_VSPDU0CW_BaseAddr)
+#define CPU__ptstMEDIA_AXI_VSPD0R   ((volatile CPU__tstAXI_Config *)CPU__nMEDIA_AXI_VSPD0R_BaseAddr)
+#define CPU__ptstMEDIA_AXI_VSPD0W   ((volatile CPU__tstAXI_Config *)CPU__nMEDIA_AXI_VSPD0W_BaseAddr)
+#define CPU__ptstMEDIA_AXI_VSPDU1CR ((volatile CPU__tstAXI_Config *)CPU__nMEDIA_AXI_VSPDU1CR_BaseAddr)
+#define CPU__ptstMEDIA_AXI_VSPDU1CW ((volatile CPU__tstAXI_Config *)CPU__nMEDIA_AXI_VSPDU1CW_BaseAddr)
+#define CPU__ptstMEDIA_AXI_VSPD1R   ((volatile CPU__tstAXI_Config *)CPU__nMEDIA_AXI_VSPD1R_BaseAddr)
+#define CPU__ptstMEDIA_AXI_VSPD1W   ((volatile CPU__tstAXI_Config *)CPU__nMEDIA_AXI_VSPD1W_BaseAddr)
+#define CPU__ptstMEDIA_AXI_DU0R     ((volatile CPU__tstAXI_Config *)CPU__nMEDIA_AXI_DU0R_BaseAddr)
+#define CPU__ptstMEDIA_AXI_DU0W     ((volatile CPU__tstAXI_Config *)CPU__nMEDIA_AXI_DU0W_BaseAddr)
+#define CPU__ptstMEDIA_AXI_DU1R     ((volatile CPU__tstAXI_Config *)CPU__nMEDIA_AXI_DU1R_BaseAddr)
+#define CPU__ptstMEDIA_AXI_DU1W     ((volatile CPU__tstAXI_Config *)CPU__nMEDIA_AXI_DU1W_BaseAddr)
+#define CPU__ptstMEDIA_AXI_VCP0CR   ((volatile CPU__tstAXI_Config *)CPU__nMEDIA_AXI_VCP0CR_BaseAddr)
+#define CPU__ptstMEDIA_AXI_VCP0CW   ((volatile CPU__tstAXI_Config *)CPU__nMEDIA_AXI_VCP0CW_BaseAddr)
+#define CPU__ptstMEDIA_AXI_VCP0VR   ((volatile CPU__tstAXI_Config *)CPU__nMEDIA_AXI_VCP0VR_BaseAddr)
+#define CPU__ptstMEDIA_AXI_VCP0VW   ((volatile CPU__tstAXI_Config *)CPU__nMEDIA_AXI_VCP0VW_BaseAddr)
+#define CPU__ptstMEDIA_AXI_VPC0R    ((volatile CPU__tstAXI_Config *)CPU__nMEDIA_AXI_VPC0R_BaseAddr)
 
 
 /* The threshold queue length which the read transactions of QOS-Level0 can fill
@@ -972,5 +1067,299 @@
 #define CPU__nGICD_ISENABLER_Cfg         0x0000ffffUL
 
 #define CPU__nVERIFICATION_TIMEOUT     1000
+
+/**
+* Description: Struct used to access S3CTRL registers
+*/
+typedef struct {
+    //CPU__GAP32(0x0000, 0x0014); // gap 0x0000 to 0x00014
+    u32 u32S3CRORR;         // 0x0014 - S3C Read Outstanding Regulation Register
+    u32 u32S3CWORR;         // 0x0018 - S3C Write Outstanding Regulation Register
+} CPU__tstS3CTRL_Config;
+
+/**
+* Description: Struct used to access MXI(QoS) registers
+*/
+typedef struct {
+    u32 u32S3CQOS0;  // 0x0000
+    u32 u32S3CQOS1;  // 0x0004
+    u32 u32S3CQOS2;  // 0x0008
+    u32 u32S3CQOS3;  // 0x000C
+    u32 u32S3CQOS4;  // 0x0010
+    u32 u32S3CQOS5;  // 0x0014
+    u32 u32S3CQOS6;  // 0x0018
+    u32 u32S3CQOS7;  // 0x001C
+    u32 u32S3CQOS8;  // 0x0020
+}CPU__tstS3C_QOS_Config;
+
+/**
+* Description: Struct used to access MXI Base registers
+*/
+typedef struct {
+    u32 u32MXSAAR0;
+    u32 u32MXSAAR1;
+}CPU__tstMXI_Config;
+
+typedef struct {
+    u32 u32MXRTCR;
+    u32 u32MXWTCR;
+}CPU__tstMXI_CR_Config;
+
+/**
+* Description: Struct used to access MXI (QoS) registers
+*/
+typedef struct {
+    u32 u32VSPDU0; 
+    u32 u32VSPDU1;
+    u32 u32DU0;
+    u32 u32DU1;
+}CPU__tstMXI_QOS_Config;
+
+/**
+* Description: Struct used to access D1H MXIR (QoS) registers
+*/
+typedef struct {
+    /*
+    * Only u32VIN is used by Baremetal Loader
+    * commented dummy,  Used offset to avoid writing to other addresses
+    * Whenever these are enabled need to remove the offset from CPU__nMXIR_QOS_BaseAddr.
+    */
+
+    /* u32 u32DUMMY[3]; */
+    u32 u32VIN;
+}CPU__tstMXIR_QOS_Config;
+
+/* AXI(QoS) */
+typedef struct  {
+    u32 u32QOSCONF;   /* 0x00 */
+    u32 u32QOSCTSET0; /* 0x04 */
+    u32 u32QOSCTSET1; /* 0x08 */
+    u32 u32QOSCTSET2; /* 0x0C */
+    u32 u32QOSCTSET3; /* 0x10 */
+    u32 u32QOSREQCTR; /* 0x14 */
+    u32 u32QOSTHRES0; /* 0x18 */
+    u32 u32QOSTHRES1; /* 0x1C */
+    u32 u32QOSTHRES2; /* 0x20 */
+    u32 u32QOSQON;    /* 0x24 */
+}CPU__tstAXI_Config;
+/**
+* Description: Struct used to access CCI-400(QoS) registers
+*/
+typedef struct {
+    CPU__GAP32(0x0000, 0x1100); // gap
+    u32 u32ARQOS;  //0x1100  Read Channel QoS Value Override Register for slave interface 0.
+    u32 u32AWQOS;  //0x1104  Write Channel QoS Value Override slave interface 0.
+	CPU__GAP32(0x1108, 0x110C); // gap
+    u32 u32QOSCTRL_1;  //0x110C QoS Control Register for slave interface 0.
+    u32 u32MAXOT_1;  //0x1110 Max OT Register for slave interface 0.
+    CPU__GAP32(0x1114, 0x210C); // gap
+	u32 u32QOSCTRL_2;  //0x210C QoS Control Register for slave interface 0.
+    u32 u32MAXOT_2;  //0x2110 Max OT Register for slave interface 1.
+	CPU__GAP32(0x2114, 0x310C); // gap
+	u32 u32QOSCTRL_3;  //0x310C QoS Control Register for slave interface 0.
+	u32 u32MAXOT_3;  //0x3110 Max OT Register for slave interface 2.
+}CPU__tstCCI400_QoS_Config;
+
+/**
+* Description: Struct used to access CCI-400(QoS) registers
+*/
+typedef struct {
+    u32 u32ARQOS;  //Read Channel QoS Value Override Register for slave interface 0.
+    u32 u32AWQOS;  //Write Channel QoS Value Override slave interface 0.
+}CPU__tstCCI400_QoSOverrideConfig;
+
+typedef struct {
+    u32 u32QOSCTRL;  //0x1100  Read Channel QoS Value Override Register for slave interface 0.
+    u32 u32MAXOT;  //0x1104  Write Channel QoS Value Override slave interface 0.
+}CPU__tstCCI400_QoSCntrlConfig;
+
+/**
+* Description: Struct used to access DBSC3_0(QoS) registers
+*/
+typedef struct {
+    u32 u32DBLGCNT;
+    u32 u32DBTMVAL0;
+    u32 u32DBTMVAL1;
+    u32 u32DBTMVAL2;
+    u32 u32DBTMVAL3;
+    u32 u32DBRQCTR;
+    u32 u32DBTHRES0;
+    u32 u32DBTHRES1;
+    u32 u32DBTHRES2;
+    u32 u32DUMMY0;	/* 0x24 */
+    u32 u32DBLGQON;
+}CPU__tstDBSC3_QOS_Config;
+
+typedef struct{
+    CPU__tstDBSC3_QOS_Config stDBSC3_ReadQoSConfig;    /* Configuration of DDR3 DBSC3 QoS Read */
+    CPU__tstDBSC3_QOS_Config stDBSC3_WriteQoSConfig;   /* Configuration of DDR3 DBSC3 QoS Write */
+}CPU__tstDBSC3_QoSCntrlConfig;
+
+typedef struct{
+    CPU__tstAXI_Config stSYSAXI_S64_Config;
+    CPU__tstAXI_Config stSYSAXI_AVB_Config;
+    CPU__tstAXI_Config stSYSAXI_IMUX0_Config;
+    CPU__tstAXI_Config stSYSAXI_IMUX1_Config;
+    CPU__tstAXI_Config stSYSAXI_IMUX2_Config;
+    CPU__tstAXI_Config stSYSAXI_MMUDS_Config;
+    CPU__tstAXI_Config stSYSAXI_MMUM_Config;
+    CPU__tstAXI_Config stSYSAXI_MMUS0_Config;
+    CPU__tstAXI_Config stSYSAXI_MMUS1_Config;
+    CPU__tstAXI_Config stSYSAXI_SDS0_Config;
+    CPU__tstAXI_Config stSYSAXI_SDS1_Config;
+    CPU__tstAXI_Config stSYSAXI_USB20_Config;
+    CPU__tstAXI_Config stSYSAXI_MLB_Config;
+    CPU__tstAXI_Config stSYSAXI_AX2M_Config;
+    CPU__tstAXI_Config stSYSAXI_CCI_Config;
+    CPU__tstAXI_Config stSYSAXI_CS_Config;
+    CPU__tstAXI_Config stSYSAXI_DDM_Config;
+    CPU__tstAXI_Config stSYSAXI_NANDC_Config;
+    CPU__tstAXI_Config stSYSAXI_DHDX_Config;
+    CPU__tstAXI_Config stSYSAXI_SDM0_Config;
+    CPU__tstAXI_Config stSYSAXI_SDM1_Config;
+    CPU__tstAXI_Config stSYSAXI_TRKF_Config;
+    CPU__tstAXI_Config stSYSAXI_UDM0_Config;
+    CPU__tstAXI_Config stSYSAXI_UDM1_Config;
+    CPU__tstAXI_Config stSYSAXI_S256SYX_Config;
+    CPU__tstAXI_Config stSYSAXI_S256MXI_Config;
+}CPU__tstSYSAXI_QoSCntrlConfig;
+
+typedef union{
+    CPU__tstSYSAXI_QoSCntrlConfig structView;
+    CPU__tstAXI_Config            arrayView[26];
+}CPU__tunSYSAXI_QoSCntrlConfig;
+
+
+typedef struct{
+    CPU__tstAXI_Config stCCIAXI_MMUS0_Config;
+    CPU__tstAXI_Config stCCIAXI_MMUS1_Config;
+    CPU__tstAXI_Config stCCIAXI_SYX2_Config;
+    CPU__tstAXI_Config stCCIAXI_MMUDS_Config;
+    CPU__tstAXI_Config stCCIAXI_MMUM_Config;
+    CPU__tstAXI_Config stCCIAXI_MXI_Config;
+}CPU__tstCCIAXI_QoSCntrlConfig;
+
+typedef union{
+    CPU__tstSYSAXI_QoSCntrlConfig structView;
+    CPU__tstAXI_Config            arrayView[6];
+}CPU__tunCCIAXI_QoSCntrlConfig;
+
+
+typedef struct{
+    CPU__tstAXI_Config stMEDAXI_MXR_Config;
+    CPU__tstAXI_Config stMEDAXI_MXW_Config;
+    CPU__tstAXI_Config stMEDAXI_VIN0W_Config;
+    CPU__tstAXI_Config stMEDAXI_VSPDU0CR_Config;
+    CPU__tstAXI_Config stMEDAXI_VSPDU0CW_Config;
+    CPU__tstAXI_Config stMEDAXI_VSPD0R_Config;
+    CPU__tstAXI_Config stMEDAXI_VSPD0W_Config;
+    CPU__tstAXI_Config stMEDAXI_VSPDU1CR_Config;
+    CPU__tstAXI_Config stMEDAXI_VSPDU1CW_Config;
+    CPU__tstAXI_Config stMEDAXI_VSPD1R_Config;
+    CPU__tstAXI_Config stMEDAXI_VSPD1W_Config;
+    CPU__tstAXI_Config stMEDAXI_DU0R_Config;
+    CPU__tstAXI_Config stMEDAXI_DU0W_Config;
+    CPU__tstAXI_Config stMEDAXI_DU1R_Config;
+    CPU__tstAXI_Config stMEDAXI_DU1W_Config;
+    CPU__tstAXI_Config stMEDAXI_VCP0CR_Config;
+    CPU__tstAXI_Config stMEDAXI_VCP0CW_Config;
+    CPU__tstAXI_Config stMEDAXI_VCP0VR_Config;
+    CPU__tstAXI_Config stMEDAXI_VCP0VW_Config;
+    CPU__tstAXI_Config stMEDAXI_VCP0R_Config;
+}CPU__tstMEDAXI_QoSCntrlConfig;
+
+typedef union{
+    CPU__tstMEDAXI_QoSCntrlConfig structView;
+    CPU__tstAXI_Config            arrayView[20];
+}CPU__tunMEDAXI_QoSCntrlConfig;
+
+
+/* Structure of CPU Configuration */
+typedef struct {
+   CPU__tstDBSC3_QoSCntrlConfig stDBSC3_QoSConfig;
+   CPU__tstS3CTRL_Config stS3CTRLConfig;
+   CPU__tstS3C_QOS_Config stS3C_CCI0_Config;
+   CPU__tstS3C_QOS_Config stS3C_CCI1_Config;
+   CPU__tstS3C_QOS_Config stS3C_MXI_Config;
+   CPU__tstS3C_QOS_Config stS3C_AXI_Config;
+   CPU__tstCCI400_QoSOverrideConfig stCCI400_QoSOverride_Config;
+   CPU__tstCCI400_QoSCntrlConfig stCCI400_QoSCntrl1_Config;
+   CPU__tstCCI400_QoSCntrlConfig stCCI400_QoSCntrl2_Config;
+   CPU__tstCCI400_QoSCntrlConfig stCCI400_QoSCntrl3_Config;
+   CPU__tstMXI_Config stMXIConfig;
+   CPU__tstMXI_CR_Config stMXI_CR_Config;
+   CPU__tstMXI_QOS_Config stMXI_QoS_Config;
+   CPU__tstMXIR_QOS_Config stMXIR_QoS_Config;
+   CPU__tstSYSAXI_QoSCntrlConfig stSYSAXI_QoS_Config;
+   CPU__tstCCIAXI_QoSCntrlConfig stCCIAXI_QoS_Config;
+   CPU__tstMEDAXI_QoSCntrlConfig stMEDAXI_QoS_Config;
+} CPU_QoS_tstConfig;
+
+/* Structure of the IPL Debug information */
+typedef struct {
+    u32 u32SeqMsgID;
+    u32 u32BaseAddr;
+    u32 u32NumOfData;
+    const char * puLongMsg;
+} CPU_tstQoSMsgDebugInfo;
+
+
+/**
+* DMA channel structure
+* This structure contains the variables needed to handle the transmission
+* for each port
+*/
+typedef struct
+{
+    u32  u32Channel;
+    u32  u32SrcAdd;
+    u32  u32DstAdd;
+    u32  u32TfrCnt;
+    u32  u32TfrSize;
+    u32  u32TotalChunks;
+    CPU_tpvDMANotificationFunc pvNotification;
+} CPU_tstDMAChannel, *CPU_tpstDMAChannel;
+
+typedef struct {
+    u32 u32SourceAddr;
+    u32 u32DestAddr;
+    u32 u32len;
+    u32 u32UnUsed;
+}CPU_tstDMAChunkInfo, *CPU_tpstDMAChunkInfo;
+
+/* Product Register (PRR). Indicates the product version, read only */
+typedef union{
+    u32 u32word;
+    struct
+    {
+        u32 bi32cut        :  8; /*cut Number
+                                     *R-Car D1 V1.0  : 0x00
+                                     *R-Car D1 V1.1  : 0x00
+                                     *R-Car D1 V1.2  : 0x02
+                                     *R-Car D1 V2.0  : 0x10
+                                     *R-Car D1SE V1.0: 0x80
+                                     */
+        u32 bi32Product    :  7; /*product, 0x50*/
+        u32 bi32Reserved0  :  7;
+        u32 bi32CA7EN      :  5; /*CPU configuation
+                                     *Single core: 0xE
+                                     *Dual core  : 0xC
+                                     */
+        u32 bi32Reserved1  :  5;
+    }bits;
+} CPU__tunPRR;
+
+/* Structure of simplified CPU variant */
+typedef struct {
+    enum{
+        CPU_nenSingleCPU,
+        CPU_nenDualCPU
+    } enCPUConfig;
+    enum{
+        CPU_nenRCarD1,
+        CPU_nenRCarD1SE,
+        CPU_nenUnknownCPU
+    } enCutNumber;
+} CPU_tenCpuVariant;
 
 #endif

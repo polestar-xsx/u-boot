@@ -4,6 +4,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/timer.h>
 #include <asm/arch/sdram.h>
+#include <asm/arch/cpu.h>
 
 static volatile SDRAM__tpstDBSC3Reg SDRAM__xDBSC3 = (SDRAM__tpstDBSC3Reg )(SDRAM__nDBSC3_BaseAddr);
 
@@ -200,7 +201,7 @@ bool sdram__initddr3(void)
    H. Kuesters suggests that he InitQOS() for the DBSC3 should be
    placed after DBSC3 Setting 1 and before Phy Init
    */
-   CPU_vQoS_DBSC3Init(pvDBSC3ParamsAddr);
+   cpu_qos_dbsc3init();
 
    /* (c) PHY Setting_1 - Part 2 */
    /* 57 - 59 */
