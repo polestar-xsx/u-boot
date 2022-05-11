@@ -3,7 +3,7 @@
 #include <asm/arch/base.h>
 #include <asm/arch/timer.h>
 #include <asm/arch/sfma.h>
-#include <arm/arch/sdram.h>
+#include <asm/arch/sdram.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/clock.h>
 

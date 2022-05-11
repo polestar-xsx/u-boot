@@ -103,6 +103,9 @@
 #define SFMA_BASE                         0xfec08000UL
 /*SDRAM register base address*/
 #define SDRAM_BASE       0xE6790010UL
-
+#define IRAM0_BASE       0xE63A0000UL
+#define IRAM0_SIZE       0x12000UL
+#define IRAM1_BASE       0xE63C0000UL
+#define IRAM1_SIZE       0x1000UL
 #define RWTCSRA	         0xE6150904UL
 #endif /* __ASM_ARCH_D1H_BASE_H */
