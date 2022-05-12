@@ -968,6 +968,35 @@ void cpu_qos_dbsc3init(void)
     }
 }
 
+void reset_cpu(void)
+{
+    u32 u32RegValue;
+    u32RegValue = *((volatile u32 *)Reset__nECMIRCFG0_Addr);   /* ECMIRCFG0, ECM reset configuration register 0 */
+    u32RegValue |= Reset__nECMWatchdogError_Msk;   /* Set the bit correspond to Watchdog overflow error interrupt */
+    *((volatile u32 *)Reset__nECMPCMD1_Addr) = Reset__nECMProtectionCommand;   /* ECMPCMD1, ECM protection command register 1 */
+    *((volatile u32 *)Reset__nECMIRCFG0_Addr) = u32RegValue;
+    *((volatile u32 *)Reset__nECMIRCFG0_Addr) = ~(u32RegValue);
+    *((volatile u32 *)Reset__nECMIRCFG0_Addr) = u32RegValue;
+
+    /* RESET */
+    *((volatile u32 *)Reset__nECMRSTCR_Addr) = Reset__nECMResetRequest;
+
+    /* Set WDOG timer value */
+    *((volatile u32 *)Reset__nRWTCNT) = (Reset__nRWTCNT_INIT | Reset__nRWTCNT_PATTERN);
+
+    /* Enable WDOG */
+    *((volatile u32 *)Reset__nRWTCSRA) = (Reset__nRWTCSRA_TME_Enable | Reset__nRWTCSR_PATTERN);
+    while(1);
+}
+
+#if defined(CONFIG_DISPLAY_CPUINFO)
+int print_cpuinfo(void)
+{
+    printf("CPU: Renesas Electronics D1H soc\n");
+    return 0;
+}
+#endif
+
 void cpu_init(void)
 {
 

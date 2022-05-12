@@ -19,11 +19,56 @@ void cpu_set_s3ctrl(void);
 
 void cpu_qos_dbsc3init(void);
 
+void reset_cpu(void);
+
+#if defined(CONFIG_DISPLAY_CPUINFO)
+int print_cpuinfo(void);
+#endif
+
 #define CPU__GAP32(start,finish)    u32 u32__##start##_##finish[((finish)-(start))/4]
 /**
 * DMA notification function type.
 */
 typedef void(*CPU_tpvDMANotificationFunc) (u32 u32ChunkNum);
+
+/* Register base address for D1H Error Control Module */
+#define Reset__nECM_Common_BaseAddr   0xE6E50080UL
+/* Address of ECM protection command register 1, ECMPCMD1: <ECM_base> + 40H */
+#define Reset__nECMPCMD1_Addr         (Reset__nECM_Common_BaseAddr + 0x40UL)
+/* Address of ECM reset configuration register 0, ECMIRCFG0: <ECM_base> + 1CH */
+#define Reset__nECMIRCFG0_Addr        (Reset__nECM_Common_BaseAddr + 0x1CUL)
+/* Address of Error Control Module Reset Control Register, ECMRSTCR */
+#define Reset__nECMRSTCR_Addr         (0xE6160054UL)
+
+/* ECM protection command */
+#define Reset__nECMProtectionCommand  (0x000000A5UL)
+
+/* Watchdog overflow error interrupt Mask */
+#define Reset__nECMWatchdogError_Msk  (0x00000001UL)
+
+/* Reset request */
+#define Reset__nECMResetRequest       (0xA55A0002UL)
+
+/* Base Address for WDOG register access */
+#define RESET_nWDOGBASE                   0xE6020000UL
+
+/**
+* Description: Defines for WDOG module register addresses
+*
+*/
+
+#define Reset__nRWTCNT        (RESET_nWDOGBASE)
+#define Reset__nRWTCSRA       (RESET_nWDOGBASE + 0x04UL)
+#define Reset__nRWTCSRB       (RESET_nWDOGBASE + 0x08UL)
+
+#define Reset__nRWTCNT_MASK         0x0000FFFFUL
+#define Reset__nRWTCNT_PATTERN      0x5A5A0000UL
+#define Reset__nRWTCSR_MASK         0x000000FFUL
+#define Reset__nRWTCSR_PATTERN      0xA5A5A500UL
+
+#define Reset__nRWTCNT_INIT         0x0000FED0UL    /* This value must correspond to Reset__nDelayBeforeResetUs delay */
+#define Reset__nRWTCSRA_TME_Enable  0x00000080UL
+
 /***************************************************************************
 * S3CTRL Registers
 ****************************************************************************/
