@@ -945,6 +945,8 @@ config TARGET_D1H
 	select SPL
 	select DM
 	select DM_SERIAL
+	select OF_CONTROL
+	select OF_LIVE
 	imply CMD_DM
 
 config ARCH_RMOBILE
