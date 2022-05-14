@@ -1,4 +1,5 @@
 #include <common.h>
+#include <spl.h>
 #include <asm/io.h>
 #include <asm/arch/base.h>
 #include <asm/arch/timer.h>
@@ -13,4 +14,9 @@ void board_init_f(ulong dummy)
     cpu_init();
     clock_init();
     sdram_init();
+}
+
+u32 spl_boot_device(void)
+{
+	return BOOT_DEVICE_NOR;
 }
