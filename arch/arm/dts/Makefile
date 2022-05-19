@@ -1032,7 +1032,7 @@ dtb-$(CONFIG_TARGET_DURIAN) += phytium-durian.dtb
 
 dtb-$(CONFIG_TARGET_PRESIDIO_ASIC) += ca-presidio-engboard.dtb
 
-dtb-$(CONFIG_TARGET_D1H) += at91sam9n12ek.dtb
+dtb-$(CONFIG_TARGET_D1H) += d1h-ge-fdc.dtb
 targets += $(dtb-y)
 
 # Add any required device tree compiler flags here
