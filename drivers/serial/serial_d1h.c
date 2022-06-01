@@ -14,17 +14,64 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define SCSMR_OFFSET 0x00
+#define SCBRR_OFFSET 0x04
+#define SCSCR_OFFSET 0x08
+#define SCFTDR_OFFSET 0x0C
+#define SCFSR_OFFSET 0x10
+#define SCFRDR_OFFSET 0x14
+#define SCFCR_OFFSET 0x18
+#define SCFDR_OFFSET 0x1C
+#define SCSPTR_OFFSET 0x20
+#define SCLSR_OFFSET 0x24
+#define DL_OFFSET 0x30
+#define CKS_OFFSET 0x34
+
+/*
+ * Information about serial port
+ *
+ * @base:	Register base address
+ * @clk:	Input clock rate, used for calculating the baud rate divisor
+ * @clk_mode:	Clock mode, set internal (INT) or external (EXT)
+ * @type:	Type of SCIF
+ */
+struct d1h_serial_plat {
+	unsigned long base;
+	unsigned int clk;
+};
+
+struct uart_port {
+	unsigned long	iobase;		/* in/out[bwl] */
+	unsigned char	*membase;	/* read/write[bwl] */
+	unsigned long	mapbase;	/* for ioremap */
+};
 
 static void output_ansi_reset(void)
 {
 
 }
 
+static void d1h_serial_init_generic(struct uart_port *port)
+{
+	writew(0x38,port->membase + (SCSCR_OFFSET));/* TIE=0,RIE=0,TE=1,RE=1,REIE=1 */
+	writew(0x38,port->membase + (SCSCR_OFFSET));
+	writew(0x00,port->membase + (SCSMR_OFFSET));
+	writew(0x00,port->membase + (SCSMR_OFFSET));
+	writew(0x06,port->membase + (SCFCR_OFFSET));
+	readw(port->membase + (SCFCR_OFFSET));
+	writew(0x00,port->membase + (SCFCR_OFFSET));
+	writew(0x03,port->membase + (SCSPTR_OFFSET));
+}
+
 static int d1h_serial_probe(struct udevice *dev)
 {
-	struct d1h_state *state = state_get_current();
-	struct d1h_serial_priv *priv = dev_get_priv(dev);
+	struct d1h_serial_plat *plat = dev_get_plat(dev);
+	struct uart_port *priv = dev_get_priv(dev);
 
+	priv->membase	= (unsigned char *)plat->base;
+	priv->mapbase	= plat->base;
+
+	d1h_serial_init_generic(priv);
 
 	return 0;
 }
