@@ -183,44 +183,6 @@ static int d1h_serial_setbrg(struct udevice *dev, int baudrate)
 	return 0;
 }
 
-#ifdef CONFIG_DEBUG_UART_D1H
-
-#include <debug_uart.h>
-
-static inline void _debug_uart_init(void)
-{
-}
-
-static inline void _debug_uart_putc(int ch)
-{
-	os_putc(ch);
-}
-
-DEBUG_UART_FUNCS
-
-#endif /* CONFIG_DEBUG_UART_D1H */
-
-
-static int d1h_serial_getinfo(struct udevice *dev,
-				  struct serial_device_info *serial_info)
-{
-	struct serial_device_info info = {
-		.type = SERIAL_CHIP_UNKNOWN,
-		.addr_space = SERIAL_ADDRESS_SPACE_IO,
-		.addr = SERIAL_DEFAULT_ADDRESS,
-		.reg_width = 1,
-		.reg_offset = 0,
-		.reg_shift = 0,
-		.clock = SERIAL_DEFAULT_CLOCK,
-	};
-
-	if (!serial_info)
-		return -EINVAL;
-
-	*serial_info = info;
-
-	return 0;
-}
 
 
 
