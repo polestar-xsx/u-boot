@@ -189,6 +189,25 @@ static int d1h_serial_setbrg(struct udevice *dev, int baudrate)
 static int d1h_serial_of_to_plat(struct udevice *dev)
 {
 	struct d1h_serial_plat *plat = dev_get_plat(dev);
+	struct clk serial_clk;
+	fdt_addr_t addr;
+	int ret;
+
+	addr = dev_read_addr(dev);
+	if (!addr)
+		return -EINVAL;
+
+	plat->base = addr;
+
+	ret = clk_get_by_name(dev, "fck", &serial_clk);
+	if (!ret) {
+		ret = clk_enable(&serial_clk);
+		if (!ret)
+			plat->clk = clk_get_rate(&serial_clk);
+	} else {
+		plat->clk = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
+					   "clock", 1);
+	}
 
 	return 0;
 }
