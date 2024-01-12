@@ -164,3 +164,218 @@ void clock_init(void)
     plls_init();
     clocktree_init();
 }
+
+/***************************************************************************
+* Description         : This function returns the fEX frequency
+* Implementation      : Determines the fEX frequency based on MD14 setting
+* Return Value        : u32, frequency in Hz
+****************************************************************************/
+u32 clock_u32GetFrequencyFEX(void)
+{
+   volatile u32 * pu32ModeMR = (volatile u32 *)(MODEMR);
+
+   u32 u32RetVal = MainOScillatorFreq;
+   CLK__tunModeMR unModeMR;
+
+   unModeMR.u32word = * pu32ModeMR;
+   /* MD14 = L: fEX = 24 MHz
+    * MD14 = H: fEX = 48 MHz */
+   if (unModeMR.bits.bi32MD14 == 0)
+   {
+      u32RetVal = u32RetVal / 2U;
+   }
+   return u32RetVal;
+}
+
+
+/***************************************************************************
+* Description         : This function returns the PLL1 frequency
+* Implementation      : Calculates the PLL1 frequency based on settings in control register
+* Return Value        : u32, frequency in Hz
+****************************************************************************/
+u32 clock_u32GetFrequencyPLL1(void)
+{
+   u64 u64RetVal;
+   u32 u32Nr;
+   u32 u32Mr;
+   CLK__tunPllCR unPllCR;
+
+   unPllCR.u32word = (CLK__xCPG->u32Pll1cr);
+   u32Nr = unPllCR.bits.bi32STC + 1U;   /* get the PLL1 multiply factor, Nr = STC[6:0] + 1 */
+   u32Mr = unPllCR.bits.bi32P + 1U;     /* get the PLL1 input clock divider Mr = P[1:0] + 1 */
+   u64RetVal = (u64)clock_u32GetFrequencyFEX() * u32Nr / u32Mr;
+   /* CKSEL PLL1 input clock selection
+    * 0: MainOsc clock fEX / 1
+    * 1: MainOsc clock fEX / 2 */
+   if (unPllCR.bits.bi32CKSEL != 0)
+   {
+      u64RetVal = u64RetVal / 2U;
+   }
+   return (u32)u64RetVal;
+}
+
+/***************************************************************************
+* Description         : This function returns the PLLS frequency
+* Implementation      : Calculates the PLLS frequency based on settings in control register
+* Return Value        : u32, frequency in Hz
+****************************************************************************/
+u32 clock_u32GetFrequencyPLLS(void)
+{
+   u64 u64RetVal;
+   u32 u32Nr;
+   u32 u32Mr;
+   CLK__tunPllCR unPllCR;
+
+   unPllCR.u32word = (CLK__xCPG->u32Pllscr);
+   u32Nr = unPllCR.bits.bi32STC + 1U;   /* get the PLLS multiply factor, Nr = STC[6:0] + 1 */
+   u32Mr = unPllCR.bits.bi32P + 1U;     /* get the PLLS input clock divider Mr = P[1:0] + 1 */
+   u64RetVal = (u64)clock_u32GetFrequencyFEX() * u32Nr / u32Mr;
+   /* CKSEL PLLS input clock selection
+    * 0: MainOsc clock fEX / 2
+    * 1: MainOsc clock fEX / 1 */
+   if (unPllCR.bits.bi32CKSEL == 0U)
+   {
+      u64RetVal = u64RetVal / 2U;
+   }
+   return (u32)u64RetVal;
+}
+
+/***************************************************************************
+* Description         : This function returns the SYS3 frequency
+* Implementation      : Calculates the SYS3 frequency based on settings in control register
+* Return Value        : u32, frequency in Hz
+****************************************************************************/
+u32 clock_u32GetFrequencySYS3(void)
+{
+   u32 u32RetVal;
+   u32 u32Zxsel;
+
+   u32Zxsel = (CLK__xCPG->u32Cksccr & CLK__nZXSel_Msk);  /* mask out ZXSEL from PLL1 Control Register */
+   if(u32Zxsel == 0U)
+   {
+      u32RetVal = clock_u32GetFrequencyPLL1() / 3U;
+   }
+   else
+   {
+      u32RetVal = clock_u32GetFrequencyPLLS() / 3U;
+   }
+    return u32RetVal;
+}
+
+/***************************************************************************
+* Description         : This function returns the S frequency,
+*                       clock domain for HSCIF, SCIF, ADG
+* Implementation      : Returns the divided fPLL1CLK
+* Return Value        : u32, frequency in Hz
+****************************************************************************/
+u32 clock_u32GetFrequencyS(void)
+{
+   return clock_u32GetFrequencyPLL1() / 6U;
+}
+
+/***************************************************************************
+* Description         : This function returns the S frequency
+* Implementation      : Returns the divided fSYS3
+* Return Value        : u32, frequency in Hz
+****************************************************************************/
+u32 clock_u32GetFrequencyZS(void)
+{
+   return clock_u32GetFrequencySYS3() / 2U;
+}
+
+/***************************************************************************
+* Description         : This function returns the SFMA frequency
+* Implementation      : Returns the divided fSYS3
+* Return Value        : u32, frequency in Hz
+****************************************************************************/
+u32 clock_u32GetFrequencySFMA(void)
+{
+   u32 u32Div = 1;
+   union /* structure of CKSC_SFMA_CTL register */
+   {
+      u32 u32word;
+      struct
+      {
+         u32 bi32Reserved0 :  6;
+         u32 bi32Exsrc     :  2;
+         u32 bi32Ckstp     :  1;
+         u32 bi32Reserved1 : 23;
+      }bits;
+   }unReg;
+
+   unReg.u32word = CLK__xCPG->u32Sfmaclkcr;
+   switch (unReg.bits.bi32Exsrc)
+   {
+      case 0U:
+         u32Div = 2U;
+         break;
+      case 1U:
+         u32Div = 3U;
+         break;
+      case 2U:
+         u32Div = 4U;
+         break;
+      case 3U:
+         u32Div = 6U;
+         break;
+      default:
+         break;
+   }
+   return clock_u32GetFrequencySYS3() / u32Div;
+}
+
+/***************************************************************************
+* Description         : This function returns the CPU core clock frequency
+* Implementation      : Determine the CPU core clock frequency from CKSCCR
+*                       and CKSCCR2 registers
+* Return Value        : u32, frequency in Hz
+****************************************************************************/
+u32 clock_u32GetFrequencyZ2(void)   /* CPU core clock */
+{
+   u32 u32RetVal;
+   u32 u32SrcSel;
+   u32 u32Div = 1;
+   union /* structure of CKSC_CTL Control Register 2 */
+   {
+      u32 u32word;
+      struct
+      {
+         u32 bi32Z2CKSEL0  :  2;
+         u32 bi32Reserved0 :  2;
+         u32 bi32Z2CKSEL1  :  2;
+         u32 bi32Reserved1 : 26;
+      }bits;
+   }unReg;
+
+   u32SrcSel = (CLK__xCPG->u32Cksccr & (1 << 0x0U));  /* mask out Z2SEL from PLL1 Control Register */
+   unReg.u32word = CLK__xCPG->u32Cksccr2;
+   if(u32SrcSel == 0U)
+   {
+      u32Div = unReg.bits.bi32Z2CKSEL0;
+      u32RetVal = clock_u32GetFrequencyPLL1();
+   }
+   else
+   {
+      u32Div = unReg.bits.bi32Z2CKSEL1;
+      u32RetVal = clock_u32GetFrequencyPLLS();
+   }
+
+   switch (u32Div)
+   {
+      case 0U:
+         u32RetVal /= 2U;
+         break;
+      case 1U:
+         u32RetVal /= 3U;
+         break;
+      case 2U:
+         u32RetVal = (u32RetVal / 26U) * 11U;
+         break;
+      case 3U:
+         u32RetVal /= 6U;
+         break;
+      default:
+         break;
+   }
+   return u32RetVal;
+}

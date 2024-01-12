@@ -128,7 +128,7 @@ serial_initfunc(pl01x_serial_initialize);
 serial_initfunc(pxa_serial_initialize);
 serial_initfunc(sh_serial_initialize);
 serial_initfunc(mtk_serial_initialize);
-
+serial_initfunc(d1h_serial_initialize);
 /**
  * serial_register() - Register serial driver with serial driver core
  * @dev:	Pointer to the serial driver structure
@@ -182,7 +182,7 @@ int serial_initialize(void)
 	pxa_serial_initialize();
 	sh_serial_initialize();
 	mtk_serial_initialize();
-
+	d1h_serial_initialize();
 	serial_assign(default_serial_console()->name);
 
 	return 0;

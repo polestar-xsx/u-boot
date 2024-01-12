@@ -22,10 +22,11 @@
 /* SCIF */
 #define SCIF0_BASE		0xE6E60000
 #define SCIF1_BASE		0xE6E68000
-#define SCIF2_BASE		0xE6E88000
-#define SCIF3_BASE		0xE6C50000
-#define SCIF4_BASE		0xE6C40000
-#define SCIF5_BASE		0xE6F30000
+#define SCIF2_BASE		0xE6E58000
+#define SCIF3_BASE		0xE6EA8000
+
+/* D1H - Base address of Mode Monitor Register */
+#define MODEMR          0xE6160060
 
 /* Module stop status register */
 #define MSTPSR0			0xE6150030

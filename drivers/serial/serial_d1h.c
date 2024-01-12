@@ -9,9 +9,10 @@
 #include <asm/global_data.h>
 #include <linux/compiler.h>
 #include <linux/delay.h>
-
+#include <asm/arch/clock.h>
+#include <asm/arch/base.h>
 #include <asm/io.h>
-
+#include "serial_d1h.h"
 DECLARE_GLOBAL_DATA_PTR;
 
 #define SCSMR_OFFSET 0x00
@@ -41,173 +42,202 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SCIF_ORER	0x0001
 
 #define SCBRR_VALUE(bps, clk) ((clk+16*bps)/(32*bps)-1)
-/*
- * Information about serial port
- *
- * @base:	Register base address
- * @clk:	Input clock rate, used for calculating the baud rate divisor
- * @clk_mode:	Clock mode, set internal (INT) or external (EXT)
- * @type:	Type of SCIF
- */
-struct d1h_serial_plat {
-	unsigned long base;
-	unsigned int clk;
-};
 
-struct d1h_serial_priv {
-	unsigned long	iobase;		/* in/out[bwl] */
-	unsigned char	*membase;	/* read/write[bwl] */
-	unsigned long	mapbase;	/* for ioremap */
-};
 
-static void output_ansi_reset(void)
+static void d1h_scif_initpfc(UART__tstPfcReg *scif_pfc)
 {
+	UART__tunPfcReg tempPfcReg;
+	/* Configure GP4_2 and GP4_3 for SCIF2 (Function 1) */
+      tempPfcReg.u32word = scif_pfc->u32Ipsr[8];    /* read */
+      tempPfcReg.u32word &= UART__nIPSR_SCIF2_FUNC1_Msk;   /* modify - IP8[14:12]=0, IP8[11:9]=0 */
+      scif_pfc->u32Pmmr = (~tempPfcReg.u32word);    /* write inverse value into PPMR */
+      scif_pfc->u32Ipsr[8] = tempPfcReg.u32word;    /* write */
 
+      tempPfcReg.u32word = scif_pfc->u32Gpsr[4];
+      tempPfcReg.u32word |= ((1UL << 3) | (1UL << 2));   /* select Peripheral Function, GP4[3]=1, GP4[2]=1 */
+      scif_pfc->u32Pmmr = (~tempPfcReg.u32word);    /* write inverse value into PPMR */
+      scif_pfc->u32Gpsr[4] = tempPfcReg.u32word;    /* write */
+
+      tempPfcReg.u32word = scif_pfc->u32ModSel;
+      tempPfcReg.u32ModSel_view.biSelScif2 = 0x0U;   /* select Function 1 */
+      scif_pfc->u32Pmmr = (~tempPfcReg.u32word);   /* write inverse value into PPMR */
+      scif_pfc->u32ModSel = tempPfcReg.u32word;    /* write */
 }
 
-static void handle_error(struct d1h_serial_priv *priv)
+static int scif_rxfill(UART__tstCommonReg *port)
 {
-	readw(priv->membase + (SCFSR_OFFSET));
-	writew(0x0073, priv->membase + (SCFSR_OFFSET));
-	readw(priv->membase + (SCLSR_OFFSET));
-	writew(0x0000, priv->membase + (SCLSR_OFFSET));
+	return port->scfdr.bits.bi16R;
 }
 
-static int scif_rxfill(struct d1h_serial_priv *priv)
+static void d1h_serial_init_generic(UART__tstCommonReg *port)
 {
-	return readw(priv->membase + (SCFDR_OFFSET)) & 0x001f;
+	//u32 u32OneBitInterval;   /*the duration of one bit interval in microsecond*/
+	/* Initialize UART Control Registers */
+
+	port->scscr.u16word = UART__nDefaultValue;   /* Clear the TE & RE to 0 */
+
+	/* Reset the Tx & Rx FIFOs */
+	port->scfcr.u16word |= UART__nFifoReset_Msk;
+
+	port->scfsr.u16word = UART__nDefaultValue;   /* Clear ER,DR,BRK,and RDF */
+	port->sclsr.u16word = UART__nDefaultValue;   /* Clear TO and ORER */
+
+	/* Set data transfer format in SCSMR */
+	/* Set up RS-232 Mode */
+	port->scsmr.bits.bi16CA   = UART__nDefaultValue;   /* Asynchronous mode */
+
+	/* 1 Stop bit, 8 Bits word size */
+	port->scsmr.bits.bi16CHR  = UART_nCharLength8Bits;
+	port->scsmr.bits.bi16STOP = UART_nOneStopBit;
+
+	port->scsmr.bits.bi16PE = UART__nOn;
+	port->scsmr.bits.bi16OE = UART_nParityNone;
+
+	/* Setup UART clock*/
+	port->scsmr.bits.bi16CKS = UART__SCSMR_CKS_cfg;   /* select clock source */
+	port->cks.bits.bi16XIN = UART__CKS_XIN_cfg;
+	port->cks.bits.bi16CKS = UART__CKS_CKS_cfg;
+	/* The SCBRR setting , N = (P# /(64 x 2^(2n+1) x B)) - 1
+	* B: Bit rate (bit/s)
+	* P#: Peripheral module operating frequency
+	* n: SCSMR.CKS[1:0] Setting
+	*/
+	//port->scbrr = (u8)(CLK_u32GetFrequencyS() / ((64UL << (2U * UART__SCSMR_CKS_cfg + 1U)) * UART_nBaud115200) - 1U);
+
+	//u32OneBitInterval = UART__nOneSecond / UART_nBaud115200 + 1U;
+	//udelay(u32OneBitInterval);
+
+	/* Set bits RTRG[1:0], TTRG[1:0], and clear bits TFRST and RFRST to 0 */
+	port->scfcr.bits.bi16RTRG = UART__nRTRG_1_BYTES;
+	port->scfcr.bits.bi16TTRG = UART__nTTRG_0_BYTES;
+	port->scfcr.bits.bi16TFRST = UART__nOff;
+	port->scfcr.bits.bi16RFRST = UART__nOff;
+
+	/* Wait at least one bit interval, then set bit TE or RE in SCSCR to 1 */
+	//udelay(u32OneBitInterval);
+
+	/* Enable UART transmiter */
+	port->scscr.bits.bi16TE = UART__nOn;
+	/* Enable UART receiver */
+	port->scscr.bits.bi16RE = UART__nOn;
 }
 
-static void d1h_serial_init_generic(struct d1h_serial_priv *priv)
+static void d1h_serial_setbrg_generic(UART__tstCommonReg *port, int baudrate)
 {
-	writew(0x38,priv->membase + (SCSCR_OFFSET));/* TIE=0,RIE=0,TE=1,RE=1,REIE=1 */
-	writew(0x38,priv->membase + (SCSCR_OFFSET));
-	writew(0x00,priv->membase + (SCSMR_OFFSET));
-	writew(0x00,priv->membase + (SCSMR_OFFSET));
-	writew(0x06,priv->membase + (SCFCR_OFFSET));
-	readw(priv->membase + (SCFCR_OFFSET));
-	writew(0x00,priv->membase + (SCFCR_OFFSET));
-	writew(0x03,priv->membase + (SCSPTR_OFFSET));
+	port->scbrr = (u8)(clock_u32GetFrequencyS() / ((64UL << (2U * UART__SCSMR_CKS_cfg + 1U)) * baudrate) - 1U);
+	udelay(1000000/baudrate + 1);
 }
 
-static int d1h_serial_tstc_generic(struct d1h_serial_priv *priv)
+static void handle_error(UART__tstCommonReg *port)
 {
-	if (readw(priv->membase + (SCFSR_OFFSET)) & SCIF_ERRORS) 
-	{
-		handle_error(priv);
+	port->scfsr.u16word &= ~UART_nRxErrorMask1;
+	port->sclsr.u16word = 0x00;
+}
+
+static int serial_raw_putc(UART__tstCommonReg *port, const char c)
+{
+	/* Tx fifo is empty */
+	if (port->scfdr.bits.bi16T == UART__nFifoFull)
+		return -EAGAIN;
+	port->scftdr = c;
+	return 0;
+}
+
+static int serial_rx_fifo_level(UART__tstCommonReg *port)
+{
+	return scif_rxfill(port);
+}
+
+static int d1h_serial_tstc_generic(UART__tstCommonReg *port)
+{
+	if (port->scfsr.u16word & UART_nRxErrorMask1) {
+		handle_error(port);
 		return 0;
 	}
 
-	return scif_rxfill(priv) ? 1 : 0;
+	return serial_rx_fifo_level(port) ? 1 : 0;
 }
+
+static int serial_getc_check(UART__tstCommonReg *port)
+{
+	u16 status;
+	status = port->scfsr.u16word;
+	if (status & UART_nRxErrorMask1)
+		handle_error(port);
+	if (port->sclsr.bits.bi16ORER)
+		handle_error(port);
+	status &= 0x03;//RDF & DR
+	if (status)
+		return status;
+	return scif_rxfill(port);
+}
+
+static int d1h_serial_getc_generic(UART__tstCommonReg *port)
+{
+
+	char ch;
+	if (!serial_getc_check(port))
+		return -EAGAIN;
+	return ch;
+}
+
+
+#if CONFIG_IS_ENABLED(DM_SERIAL)
+
+struct d1h_serial_priv {
+	UART__tstCommonReg *uart;
+};
+
+static int d1h_serial_pending(struct udevice *dev, bool input)
+{
+	struct d1h_serial_priv *priv = dev_get_priv(dev);
+
+	return d1h_serial_tstc_generic(priv->uart);
+}
+
+static int d1h_serial_putc(struct udevice *dev, const char ch)
+{
+	struct d1h_serial_priv *priv = dev_get_priv(dev);
+
+	return serial_raw_putc(priv->uart, ch);
+}
+
+static int d1h_serial_getc(struct udevice *dev)
+{
+	struct d1h_serial_priv *priv = dev_get_priv(dev);
+
+	return d1h_serial_getc_generic(priv->uart);
+}
+
+static int d1h_serial_setbrg(struct udevice *dev, int baudrate)
+{
+	struct d1h_serial_plat *plat = dev_get_plat(dev);
+	struct d1h_serial_priv *priv = dev_get_priv(dev);
+
+	d1h_serial_setbrg_generic(priv->uart, baudrate);
+
+	return 0;
+}
+
 
 static int d1h_serial_probe(struct udevice *dev)
 {
 	struct d1h_serial_plat *plat = dev_get_plat(dev);
 	struct d1h_serial_priv *priv = dev_get_priv(dev);
 
-	priv->membase	= (unsigned char *)plat->base;
-	priv->mapbase	= plat->base;
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+	fdt_addr_t addr_base;
 
-	d1h_serial_init_generic(priv);
+	addr_base = dev_read_addr(dev);
+	if (addr_base == FDT_ADDR_T_NONE)
+		return -ENODEV;
 
-	return 0;
-}
+	plat->addr_base = (uint32_t)addr_base;
+#endif
 
+	priv->uart	= (UART__tstCommonReg *)plat->addr_base;
 
-static int d1h_serial_putc(struct udevice *dev, const char ch)
-{
-	struct d1h_serial_priv *priv = dev_get_priv(dev);
-	struct d1h_serial_plat *plat = dev_get_plat(dev);
-	/* Tx fifo is empty */
-	if(!(readw(priv->membase + (SCFSR_OFFSET)) & 0x0040))
-		return -EAGAIN;
-
-	writew(ch, priv->membase + (SCFTDR_OFFSET));
-	writew(readw(priv->membase + (SCFSR_OFFSET)) & (~(0x0040)), priv->membase + (SCFSR_OFFSET));
-
-	return 0;
-}
-
-static int d1h_serial_pending(struct udevice *dev, bool input)
-{
-	struct d1h_serial_priv *priv = dev_get_priv(dev);
-
-	return d1h_serial_tstc_generic(priv);
-}
-
-static int serial_getc_check(struct d1h_serial_priv *priv)
-{
-	unsigned short status;
-
-	status = readw(priv->membase + (SCFSR_OFFSET));
-
-	if (status & SCIF_ERRORS)
-		handle_error(priv);
-	if (readw(priv->membase + (SCLSR_OFFSET)) & SCIF_ORER)
-		handle_error(priv);
-	status &= (SCIF_DR | SCIF_RDF);
-	if (status)
-		return status;
-	return scif_rxfill(priv);
-}
-
-static int d1h_serial_getc(struct udevice *dev)
-{
-	unsigned short status;
-	char ch;
-	struct d1h_serial_priv *priv = dev_get_priv(dev);
-	if (!serial_getc_check(priv))
-		return -EAGAIN;
-
-	ch = readw(priv->membase + (SCFRDR_OFFSET));
-	status = readw(priv->membase + (SCFSR_OFFSET));
-
-	writew(0x00fc, priv->membase + (SCFSR_OFFSET));
-	if (status & SCIF_ERRORS)
-		handle_error(priv);
-
-	if (readw(priv->membase + (SCLSR_OFFSET)) & SCIF_ORER)
-		handle_error(priv);
-
-	return ch;
-}
-
-static int d1h_serial_setbrg(struct udevice *dev, int baudrate)
-{
-	struct sh_serial_plat *plat = dev_get_plat(dev);
-	struct uart_port *priv = dev_get_priv(dev);
-	
-	writew(SCBRR_VALUE(baudrate, plat->clk), priv->membase + (SCBRR_OFFSET));
-
-	return 0;
-}
-
-
-
-
-static int d1h_serial_of_to_plat(struct udevice *dev)
-{
-	struct d1h_serial_plat *plat = dev_get_plat(dev);
-	struct clk serial_clk;
-	fdt_addr_t addr;
-	int ret;
-
-	addr = dev_read_addr(dev);
-	if (!addr)
-		return -EINVAL;
-
-	plat->base = addr;
-
-	ret = clk_get_by_name(dev, "fck", &serial_clk);
-	if (!ret) {
-		ret = clk_enable(&serial_clk);
-		if (!ret)
-			plat->clk = clk_get_rate(&serial_clk);
-	} else {
-		plat->clk = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-					   "clock", 1);
-	}
+	d1h_serial_init_generic(priv->uart);
 
 	return 0;
 }
@@ -228,7 +258,6 @@ U_BOOT_DRIVER(d1h_serial) = {
 	.name	= "d1h_serial",
 	.id	= UCLASS_SERIAL,
 	.of_match = d1h_serial_ids,
-	.of_to_plat = d1h_serial_of_to_plat,
 	.plat_auto	= sizeof(struct d1h_serial_plat),
 	.priv_auto	= sizeof(struct d1h_serial_priv),
 	.probe = d1h_serial_probe,
@@ -236,17 +265,86 @@ U_BOOT_DRIVER(d1h_serial) = {
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
-static const struct d1h_serial_plat platdata_non_fdt = {
-	.colour = -1,
+#else /* CONFIG_DM_SERIAL */
+
+
+static void d1h_serial_setbrg(void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+	UART__tstCommonReg *port = (UART__tstCommonReg *)CONFIG_SYS_DEBUG_UART_BASE;
+
+	d1h_serial_setbrg_generic(port, gd->baudrate);
+}
+
+static int d1h_serial_init(void)
+{
+	UART__tstCommonReg *port = (UART__tstCommonReg *)CONFIG_SYS_DEBUG_UART_BASE;
+	UART__tstPfcReg *pfc = (UART__tstPfcReg *)PFC_BASE;
+	d1h_serial_init_generic(port);
+	d1h_scif_initpfc(pfc);
+	serial_setbrg();
+
+	return 0;
+}
+
+static void d1h_serial_putc(const char c)
+{
+	UART__tstCommonReg *port = (UART__tstCommonReg *)CONFIG_SYS_DEBUG_UART_BASE;
+
+	if (c == '\n') {
+		while (1) {
+			if  (serial_raw_putc(port, '\r') != -EAGAIN)
+				break;
+		}
+	}
+	while (1) {
+		if  (serial_raw_putc(port, c) != -EAGAIN)
+			break;
+	}
+}
+
+static int d1h_serial_tstc(void)
+{
+	UART__tstCommonReg *port = (UART__tstCommonReg *)CONFIG_SYS_DEBUG_UART_BASE;
+
+	return d1h_serial_tstc_generic(port);
+}
+
+static int d1h_serial_getc(void)
+{
+	UART__tstCommonReg *port = (UART__tstCommonReg *)CONFIG_SYS_DEBUG_UART_BASE;
+	int ch;
+
+	while (1) {
+		ch = d1h_serial_getc_generic(port);
+		if (ch != -EAGAIN)
+			break;
+	}
+
+	return ch;
+}
+
+static struct serial_device d1h_serial_drv = {
+	.name	= "d1h_serial",
+	.start	= d1h_serial_init,
+	.stop	= NULL,
+	.setbrg	= d1h_serial_setbrg,
+	.putc	= d1h_serial_putc,
+	.puts	= default_serial_puts,
+	.getc	= d1h_serial_getc,
+	.tstc	= d1h_serial_tstc,
 };
 
-U_BOOT_DRVINFO(serial_d1h_non_fdt) = {
-	.name = "d1h_serial",
-	.plat = &platdata_non_fdt,
-};
+void d1h_serial_initialize(void)
+{
+	serial_register(&d1h_serial_drv);
+}
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return &d1h_serial_drv;
+}
 #endif
-
 #ifdef CONFIG_DEBUG_UART_D1H
 
 #include <debug_uart.h>

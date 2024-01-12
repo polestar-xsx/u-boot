@@ -945,8 +945,6 @@ config TARGET_D1H
 	select SPL
 	select DM
 	select DM_SERIAL
-	select SPL_DM
-	select SPL_DM_SERIAL
 	select SPL_SERIAL_SUPPORT
 	select OF_CONTROL
 	select OF_LIVE

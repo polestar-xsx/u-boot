@@ -65,7 +65,7 @@
     };
 
     serial@e6e60000 {
-        compatible = "renesas,scif-r7s721063", "renesas,scif";
+        compatible = "renesas,scif-r7s721063", "renesas,scif","d1h,serial";
 
         /* SCIF0 base address */
         reg = <0x0 0xe6e60000 0x0 0x40>;

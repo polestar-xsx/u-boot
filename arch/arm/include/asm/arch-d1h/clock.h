@@ -4,12 +4,27 @@
 
 
 void clock_init(void);
+
+u32 clock_u32GetFrequencyFEX(void);
+u32 clock_u32GetFrequencyPLL1(void);
+u32 clock_u32GetFrequencyPLLS(void);
+u32 clock_u32GetFrequencySYS3(void);
+
+u32 clock_u32GetFrequencyS(void);
+u32 clock_u32GetFrequencyZS(void);
+u32 clock_u32GetFrequencySFMA(void);
+u32 clock_u32GetFrequencyZ2(void);
+
 /*
 * Description: Macro to fill the gaps within structures
 */
 #define CLK__GAP8(start,finish)     u8   u8__##start##_##finish[(finish)-(start)]
 #define CLK__GAP16(start,finish)    u16 u16__##start##_##finish[((finish)-(start))/2]
 #define CLK__GAP32(start,finish)    u32 u32__##start##_##finish[((finish)-(start))/4]
+
+#define MainOScillatorFreq    48000000UL    /* Frequency of main oscillator in Hz */
+#define IntOScillatorFreq     8000000UL     /* Frequency of internal oscillator in Hz */
+#define SubOscillator         32768UL       /* they are placed here for informational purposes only      */
 
 /* D1H */
 #define CLK__nProtCmdVal           0xA5U          /* register protection unlock command */

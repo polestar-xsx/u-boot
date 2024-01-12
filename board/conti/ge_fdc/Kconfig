@@ -10,5 +10,5 @@ config SYS_VENDOR
 
 config SYS_CONFIG_NAME
 	default "ge_fdc"
-
+	
 endif

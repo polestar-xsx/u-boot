@@ -1,3 +1,6 @@
+#ifndef __GE_FDC_H__
+#define __GE_FDC_H__
+#include <asm/arch/base.h>
 #define CONFIG_SYS_LOAD_ADDR		0x10500000 /* load address */
 
 /*
@@ -11,3 +14,5 @@
 #define CONFIG_SYS_INIT_SP_ADDR     (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 #define CONFIG_SYS_SDRAM_BASE       0x40000000UL
+#define CONFIG_SYS_DEBUG_UART_BASE  0xE6E58000UL
+#endif
