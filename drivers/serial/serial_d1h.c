@@ -10,6 +10,7 @@
 #include <linux/compiler.h>
 #include <linux/delay.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/timer.h>
 #include <asm/arch/base.h>
 #include <asm/io.h>
 #include "serial_d1h.h"
@@ -46,100 +47,61 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static void d1h_scif_initpfc(UART__tstPfcReg *scif_pfc)
 {
-	UART__tunPfcReg tempPfcReg;
-	/* Configure GP4_2 and GP4_3 for SCIF2 (Function 1) */
-      tempPfcReg.u32word = scif_pfc->u32Ipsr[8];    /* read */
-      tempPfcReg.u32word &= UART__nIPSR_SCIF2_FUNC1_Msk;   /* modify - IP8[14:12]=0, IP8[11:9]=0 */
-      scif_pfc->u32Pmmr = (~tempPfcReg.u32word);    /* write inverse value into PPMR */
-      scif_pfc->u32Ipsr[8] = tempPfcReg.u32word;    /* write */
+	u32 temp;
+	temp = readl(&scif_pfc->u32Ipsr[8]);
+	temp &= UART__nIPSR_SCIF2_FUNC1_Msk;
+	writel(~temp,&scif_pfc->u32Pmmr);
+	writel(temp,&scif_pfc->u32Ipsr[8]);
 
-      tempPfcReg.u32word = scif_pfc->u32Gpsr[4];
-      tempPfcReg.u32word |= ((1UL << 3) | (1UL << 2));   /* select Peripheral Function, GP4[3]=1, GP4[2]=1 */
-      scif_pfc->u32Pmmr = (~tempPfcReg.u32word);    /* write inverse value into PPMR */
-      scif_pfc->u32Gpsr[4] = tempPfcReg.u32word;    /* write */
+	temp = readl(&scif_pfc->u32Gpsr[4]);
+	temp |= ((1UL << 3) | (1UL << 2));
+	writel(~temp,&scif_pfc->u32Pmmr);
+	writel(temp,&scif_pfc->u32Gpsr[4]);
 
-      tempPfcReg.u32word = scif_pfc->u32ModSel;
-      tempPfcReg.u32ModSel_view.biSelScif2 = 0x0U;   /* select Function 1 */
-      scif_pfc->u32Pmmr = (~tempPfcReg.u32word);   /* write inverse value into PPMR */
-      scif_pfc->u32ModSel = tempPfcReg.u32word;    /* write */
+	temp = readl(&scif_pfc->u32ModSel);
+	temp &= 0xffffff3f;
+	writel(~temp,&scif_pfc->u32Pmmr);
+	writel(temp,&scif_pfc->u32ModSel);
 }
 
 static int scif_rxfill(UART__tstCommonReg *port)
 {
-	return port->scfdr.bits.bi16R;
+	return readw(&port->scfdr)&0x1f;
 }
 
 static void d1h_serial_init_generic(UART__tstCommonReg *port)
 {
-	//u32 u32OneBitInterval;   /*the duration of one bit interval in microsecond*/
-	/* Initialize UART Control Registers */
-
-	port->scscr.u16word = UART__nDefaultValue;   /* Clear the TE & RE to 0 */
-
-	/* Reset the Tx & Rx FIFOs */
-	port->scfcr.u16word |= UART__nFifoReset_Msk;
-
-	port->scfsr.u16word = UART__nDefaultValue;   /* Clear ER,DR,BRK,and RDF */
-	port->sclsr.u16word = UART__nDefaultValue;   /* Clear TO and ORER */
-
-	/* Set data transfer format in SCSMR */
-	/* Set up RS-232 Mode */
-	port->scsmr.bits.bi16CA   = UART__nDefaultValue;   /* Asynchronous mode */
-
-	/* 1 Stop bit, 8 Bits word size */
-	port->scsmr.bits.bi16CHR  = UART_nCharLength8Bits;
-	port->scsmr.bits.bi16STOP = UART_nOneStopBit;
-
-	port->scsmr.bits.bi16PE = UART__nOn;
-	port->scsmr.bits.bi16OE = UART_nParityNone;
-
-	/* Setup UART clock*/
-	port->scsmr.bits.bi16CKS = UART__SCSMR_CKS_cfg;   /* select clock source */
-	port->cks.bits.bi16XIN = UART__CKS_XIN_cfg;
-	port->cks.bits.bi16CKS = UART__CKS_CKS_cfg;
-	/* The SCBRR setting , N = (P# /(64 x 2^(2n+1) x B)) - 1
-	* B: Bit rate (bit/s)
-	* P#: Peripheral module operating frequency
-	* n: SCSMR.CKS[1:0] Setting
-	*/
-	//port->scbrr = (u8)(CLK_u32GetFrequencyS() / ((64UL << (2U * UART__SCSMR_CKS_cfg + 1U)) * UART_nBaud115200) - 1U);
-
-	//u32OneBitInterval = UART__nOneSecond / UART_nBaud115200 + 1U;
-	//udelay(u32OneBitInterval);
-
-	/* Set bits RTRG[1:0], TTRG[1:0], and clear bits TFRST and RFRST to 0 */
-	port->scfcr.bits.bi16RTRG = UART__nRTRG_1_BYTES;
-	port->scfcr.bits.bi16TTRG = UART__nTTRG_0_BYTES;
-	port->scfcr.bits.bi16TFRST = UART__nOff;
-	port->scfcr.bits.bi16RFRST = UART__nOff;
-
-	/* Wait at least one bit interval, then set bit TE or RE in SCSCR to 1 */
-	//udelay(u32OneBitInterval);
-
-	/* Enable UART transmiter */
-	port->scscr.bits.bi16TE = UART__nOn;
-	/* Enable UART receiver */
-	port->scscr.bits.bi16RE = UART__nOn;
+	writew(0x30,&port->scscr);
+	writew(0x30,&port->scscr);
+	writew(0x00,&port->scsmr);
+	writew(0x00,&port->scsmr);
+	writew(0x06,&port->scfcr);
+	readw(&port->scfcr);
+	writew(0x00,&port->scfcr);
 }
 
 static void d1h_serial_setbrg_generic(UART__tstCommonReg *port, int baudrate)
 {
-	port->scbrr = (u8)(clock_u32GetFrequencyS() / ((64UL << (2U * UART__SCSMR_CKS_cfg + 1U)) * baudrate) - 1U);
-	udelay(1000000/baudrate + 1);
+	u8 temp = (u8)(clock_u32GetFrequencyS() / ((64UL << (2U * UART__SCSMR_CKS_cfg + 1U)) * baudrate) - 1U);
+	writeb(temp,&port->scbrr);
+	__udelay(1000000/baudrate + 1);
 }
 
 static void handle_error(UART__tstCommonReg *port)
 {
-	port->scfsr.u16word &= ~UART_nRxErrorMask1;
-	port->sclsr.u16word = 0x00;
+	readw(&port->scfsr);
+	writew(~UART_nRxErrorMask1,&port->scfsr);
+	readw(&port->sclsr);
+	writew(0x00,&port->sclsr);
 }
 
 static int serial_raw_putc(UART__tstCommonReg *port, const char c)
 {
 	/* Tx fifo is empty */
-	if (port->scfdr.bits.bi16T == UART__nFifoFull)
+	if (!(readw(&port->scfsr) & 0x40))
 		return -EAGAIN;
-	port->scftdr = c;
+	writeb(c, &port->scftdr);
+	writew(readw(&port->scfsr) & (~0x40), &port->scfsr);
 	return 0;
 }
 
@@ -150,7 +112,7 @@ static int serial_rx_fifo_level(UART__tstCommonReg *port)
 
 static int d1h_serial_tstc_generic(UART__tstCommonReg *port)
 {
-	if (port->scfsr.u16word & UART_nRxErrorMask1) {
+	if (readw(&port->scfsr) & UART_nRxErrorMask1) {
 		handle_error(port);
 		return 0;
 	}
@@ -161,10 +123,10 @@ static int d1h_serial_tstc_generic(UART__tstCommonReg *port)
 static int serial_getc_check(UART__tstCommonReg *port)
 {
 	u16 status;
-	status = port->scfsr.u16word;
+	status = readw(&port->scfsr);
 	if (status & UART_nRxErrorMask1)
 		handle_error(port);
-	if (port->sclsr.bits.bi16ORER)
+	if (readw(&port->sclsr)&0x01)
 		handle_error(port);
 	status &= 0x03;//RDF & DR
 	if (status)
@@ -272,7 +234,6 @@ static void d1h_serial_setbrg(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 	UART__tstCommonReg *port = (UART__tstCommonReg *)CONFIG_SYS_DEBUG_UART_BASE;
-
 	d1h_serial_setbrg_generic(port, gd->baudrate);
 }
 
@@ -283,7 +244,6 @@ static int d1h_serial_init(void)
 	d1h_serial_init_generic(port);
 	d1h_scif_initpfc(pfc);
 	serial_setbrg();
-
 	return 0;
 }
 
