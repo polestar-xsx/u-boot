@@ -1,7 +1,7 @@
 #ifndef __GE_FDC_H__
 #define __GE_FDC_H__
 #include <asm/arch/base.h>
-#define CONFIG_SYS_LOAD_ADDR		0x10500000 /* load address */
+#define CONFIG_SYS_LOAD_ADDR		0x40100000UL /* load address */
 
 /*
  * Size of malloc() pool
@@ -17,4 +17,5 @@
 
 #define CONFIG_SYS_SDRAM_BASE       0x40000000UL
 #define CONFIG_SYS_DEBUG_UART_BASE  0xE6E58000UL
+#define CONFIG_SYS_UBOOT_BASE       0x10000000UL
 #endif

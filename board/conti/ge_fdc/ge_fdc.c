@@ -12,7 +12,7 @@ void s_init(void)
 
 int dram_init(void)
 {
-	gd->ram_size = 0x4000000;
+	gd->ram_size = 0x40000000;
 	return 0;
 }
 
