@@ -110,6 +110,8 @@ typedef enum UART_enState UART_tenState;
 /* Configuration of UART receiver error mask  */
 #define UART_nRxErrorMask1          ((u16) 0x009CU)
 #define UART_nRxErrorMask2          ((u16) 0x0005U)
+/* Clear Receive Flag*/
+#define UART_nRXClearFlag           ((u16) 0x00FCU)
 /* Configuration of default value set for UART registers.*/
 #define UART__nDefaultValue         (0x0U)   
 /* Initial value of Bit Rate Register*/

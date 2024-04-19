@@ -136,10 +136,21 @@ static int serial_getc_check(UART__tstCommonReg *port)
 
 static int d1h_serial_getc_generic(UART__tstCommonReg *port)
 {
-
+	u16 status;
 	char ch;
 	if (!serial_getc_check(port))
 		return -EAGAIN;
+	ch = readb(&port->scfrdr);
+	status = readw(&port->scfsr);
+
+	writew(UART_nRXClearFlag,&port->scfsr);
+
+	if (status & SCIF_ERRORS)
+		handle_error(port);
+
+	if (readw(&port->sclsr) & SCIF_ORER)
+		handle_error(port);
+
 	return ch;
 }
 
