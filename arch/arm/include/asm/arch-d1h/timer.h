@@ -26,7 +26,7 @@ unsigned long get_timer(unsigned long base);
   *              in division of 32.5. In this case the actual value is
   *              32.49999997, which is close enough to 32.5.
   */
-#define TIMER_SCL_NUMERATOR       (132152840ULL)
+#define TIMER_SCL_NUMERATOR       (132152ULL)//(132152840ULL) us
 #define TIMER_SCL_DENOMINATOR     (1ULL << 32)
 
 /**
