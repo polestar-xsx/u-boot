@@ -874,7 +874,6 @@ config XEN_SERIAL
 
 config D1H_SERIAL
 	bool "D1H serial support"
-	depends on DM_SERIAL
 	help
 	  Select this to enable UART support for D1H SoC UART devices. 
 	  This driver uses driver model and requires a device tree binding to operate.

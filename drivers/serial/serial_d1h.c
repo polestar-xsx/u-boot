@@ -184,7 +184,6 @@ static int d1h_serial_getc(struct udevice *dev)
 
 static int d1h_serial_setbrg(struct udevice *dev, int baudrate)
 {
-	struct d1h_serial_plat *plat = dev_get_plat(dev);
 	struct d1h_serial_priv *priv = dev_get_priv(dev);
 
 	d1h_serial_setbrg_generic(priv->uart, baudrate);
@@ -192,26 +191,29 @@ static int d1h_serial_setbrg(struct udevice *dev, int baudrate)
 	return 0;
 }
 
+static int d1h_serial_of_to_plat(struct udevice *dev)
+{
+	struct d1h_serial_plat *plat = dev_get_plat(dev);
+	fdt_addr_t addr;
+	int ret;
+
+	addr = dev_read_addr(dev);
+	if (!addr)
+		return -EINVAL;
+
+	plat->addr_base = addr;
+	return 0;
+}
 
 static int d1h_serial_probe(struct udevice *dev)
 {
 	struct d1h_serial_plat *plat = dev_get_plat(dev);
 	struct d1h_serial_priv *priv = dev_get_priv(dev);
-
-#if CONFIG_IS_ENABLED(OF_CONTROL)
-	fdt_addr_t addr_base;
-
-	addr_base = dev_read_addr(dev);
-	if (addr_base == FDT_ADDR_T_NONE)
-		return -ENODEV;
-
-	plat->addr_base = (uint32_t)addr_base;
-#endif
-
+	UART__tstPfcReg *pfc = (UART__tstPfcReg *)PFC_BASE;
 	priv->uart	= (UART__tstCommonReg *)plat->addr_base;
 
 	d1h_serial_init_generic(priv->uart);
-
+	d1h_scif_initpfc(pfc);
 	return 0;
 }
 
@@ -233,6 +235,7 @@ U_BOOT_DRIVER(d1h_serial) = {
 	.of_match = d1h_serial_ids,
 	.plat_auto	= sizeof(struct d1h_serial_plat),
 	.priv_auto	= sizeof(struct d1h_serial_priv),
+	.of_to_plat = d1h_serial_of_to_plat,
 	.probe = d1h_serial_probe,
 	.ops	= &d1h_serial_ops,
 	.flags = DM_FLAG_PRE_RELOC,

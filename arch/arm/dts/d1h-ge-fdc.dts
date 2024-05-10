@@ -12,9 +12,12 @@
         64Bit base address
         64Bit bank size
     */
-    #address-cells = <0x2>;
-    #size-cells = <0x2>;
+    #address-cells = <0x1>;
+    #size-cells = <0x1>;
 
+    aliases {
+		uart_debug = &serial2;
+	};
 
     cpus {
         /* 
@@ -46,10 +49,10 @@
         #interrupt-cells = <0x3>;
 
         interrupt-controller;
-        reg = <0x0 0xf1001000 0x0 0x1000
-               0x0 0xf1002000 0x0 0x1000
-               0x0 0xf1004000 0x0 0x2000
-               0x0 0xf1006000 0x0 0x2000>;
+        reg = <0xf1001000 0x1000
+               0xf1002000 0x1000
+               0xf1004000 0x2000
+               0xf1006000 0x2000>;
 
         /*  Interrupt signal is defined as following
             IRQ_LEVEL        = (1 <<  8),
@@ -64,25 +67,18 @@
         interrupts = <0x1 0x9 0xf04>;
     };
 
-    serial@e6e60000 {
+    serial2:scif2@e6e58000 {
         compatible = "renesas,scif-r7s721063", "renesas,scif","d1h,serial";
 
         /* SCIF0 base address */
-        reg = <0x0 0xe6e60000 0x0 0x40>;
-        
-        /*  Interrupt signal is defined as following
-
-            IRQ_TYPE_LEVEL_HIGH = 0x4
-        */
-
-        /* interrupt-type (SPI), interrupt number, interrupt signal */
-        interrupts = <0x0 0x98 0x4>;
+        reg = <0xe6e58000 0x40>;
+        status = "okay";
     };
 
 
     memory@40000000 {
         device_type = "memory";
-        reg = <0x0 0x40000000 0x0 0x40000000>; /*1 GB*/
+        reg = <0x40000000 0x40000000>; /*1 GB*/
     };
 
     /* Memory map SFMA (enable by merlot loader) content into to kernel space */ 
@@ -106,9 +102,9 @@
         #size-cells = <0x0>;
         compatible = "renesas,nfma-r7s721063";
 
-        reg = <0x0 0xe66d0000 0x0 0x160   /* NFMA base */
-               0x0 0xe6e53404 0x0 0x004   /* NFMAFASTTR */
-               0x0 0xe6150144 0x0 0x004>; /* SMSTPCR5 */
+        reg = <0xe66d0000 0x160   /* NFMA base */
+               0xe6e53404 0x004   /* NFMAFASTTR */
+               0xe6150144 0x004>; /* SMSTPCR5 */
         
         /*  Interrupt signal is defined as following
 
@@ -121,3 +117,4 @@
     };
 
 };
+
