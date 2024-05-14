@@ -168,4 +168,13 @@ config PINCTRL_PFC_R7S72100
 	  the GPIO definitions and pin control functions for each available
 	  multiplex function.
 
+config PINCTRL_PFC_D1H
+	bool "Renesas RCar D1H pin control driver"
+	help
+	  Support pin multiplexing control on Renesas RCar D1H SoCs.
+
+	  The driver is controlled by a device tree node which contains both
+	  the GPIO definitions and pin control functions for each available
+	  multiplex function.
+
 endif
