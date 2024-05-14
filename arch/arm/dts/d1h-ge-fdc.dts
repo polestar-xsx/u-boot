@@ -124,35 +124,35 @@
         /* Use pin configuration 0 */
         /* Alternative configurations e.g. pinctrl-1 are currently not supported */
         pinctrl-0 = <&scif2_pins>,<&unused_pins>;
-    };
+    };  
     
-    &pfc {
-        scif2_pins: serial2 {
-            /* MOD_SEL[7:6]=2'b00 */
-            pfc-mod-sel2 = < 0xFFFFFF3F 0x00000000 >;
-
-            /*
-               SCIF2_RXD
-               IP8[11:9]=3'b000
-               SCIF2_TXD
-               IP8[14:12]=3'b000
-            */
-            pfc-ipsr8 = < 0xFFFF81FF 0x00000000 >;
-
-            /* GP4[3:2] select function by IP8 */
-            pfc-gpsr4 = < 0xFFFFFFF3 0x0000000C >;
-        };
-
-        unused_pins:unusedpin {
-            /*GP0_12 GP3_21 GP3_30 GP3_31 GP4_0 not used,pull up/down disable;GP0_31 nand reset,high pull up, GP1_0 nand wp low pull up disable*/
-            pfc-gpsr0 = < 0x7FFFEFFF 0x00000000 >;
-            pfc-gpsr1 = < 0xFFFFFFFE 0x00000000 >;
-            pfc-gpsr3 = < 0x3FDFFFFF 0x00000000 >;
-            pfc-gpsr4 = < 0xFFFFFFFE 0x00000000 >;
-            pfc-pupr1 = < 0xFFFFFFFE 0x00000000 >;
-            pfc-pupr3 = < 0xFDFFFFFF 0x00000000 >;
-            pfc-pupr4 = < 0xFFFFFFE3 0x00000000 >;
-        };
-    }
 };
 
+&pfc {
+    scif2_pins: serial2 {
+        /* MOD_SEL[7:6]=2'b00 */
+        pfc-mod-sel2 = < 0xFFFFFF3F 0x00000000 >;
+
+        /*
+            SCIF2_RXD
+            IP8[11:9]=3'b000
+            SCIF2_TXD
+            IP8[14:12]=3'b000
+        */
+        pfc-ipsr8 = < 0xFFFF81FF 0x00000000 >;
+
+        /* GP4[3:2] select function by IP8 */
+        pfc-gpsr4 = < 0xFFFFFFF3 0x0000000C >;
+    };
+
+    unused_pins:unusedpin {
+        /*GP0_12 GP3_21 GP3_30 GP3_31 GP4_0 not used,pull up/down disable;GP0_31 nand reset,high pull up, GP1_0 nand wp low pull up disable*/
+        pfc-gpsr0 = < 0x7FFFEFFF 0x00000000 >;
+        pfc-gpsr1 = < 0xFFFFFFFE 0x00000000 >;
+        pfc-gpsr3 = < 0x3FDFFFFF 0x00000000 >;
+        pfc-gpsr4 = < 0xFFFFFFFE 0x00000000 >;
+        pfc-pupr1 = < 0xFFFFFFFE 0x00000000 >;
+        pfc-pupr3 = < 0xFDFFFFFF 0x00000000 >;
+        pfc-pupr4 = < 0xFFFFFFE3 0x00000000 >;
+    };
+};
