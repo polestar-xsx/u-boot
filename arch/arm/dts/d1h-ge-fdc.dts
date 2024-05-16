@@ -17,6 +17,7 @@
 
     aliases {
 		uart_debug = &serial2;
+                pcmpl = &pcmp;
 	};
 
     cpus {
@@ -66,7 +67,22 @@
         /* interrupt-type (PPI), interrupt number, interrupt signal */
         interrupts = <0x1 0x9 0xf04>;
     };
+    pcmp: pcmp@0xe66b0000 {
+        compatible = "renesas,pcmp-r7s721063";
+        reg = <0xe66b0000 0x2c
+               0xe6150144 0x04>;	/* SMSTPCR5 */
+        interrupts = <0x0 0x161 0x1>;		/* INTPCMP0FERR */	  
+        status = "okay";
+    };
+    pfc: pfc@e6060000 {
+        compatible = "renesas,pfc-r7s721063","d1h,pfc";
+        reg = <0xe6060000 0x250>;
+        status = "okay";
 
+        /* Use pin configuration 0 */
+        /* Alternative configurations e.g. pinctrl-1 are currently not supported */
+        pinctrl-0 = <&scif2_pins>,<&unused_pins>;
+    };
     serial2:scif2@e6e58000 {
         compatible = "renesas,scif-r7s721063", "renesas,scif","d1h,serial";
 
@@ -74,7 +90,6 @@
         reg = <0xe6e58000 0x40>;
         status = "okay";
     };
-
 
     memory@40000000 {
         device_type = "memory";
@@ -114,16 +129,6 @@
         /* interrupt-type (SPI), interrupt number, interrupt signal */
         interrupts = <0x0 0x69 0x4>;      /* NFMA interrupt vector */
         status = "ok";
-    };
-
-    pfc: pfc@e6060000 {
-        compatible = "renesas,pfc-r7s721063","d1h,pfc";
-        reg = <0xe6060000 0x250>;
-        status = "ok";
-
-        /* Use pin configuration 0 */
-        /* Alternative configurations e.g. pinctrl-1 are currently not supported */
-        pinctrl-0 = <&scif2_pins>,<&unused_pins>;
     };  
     
 };

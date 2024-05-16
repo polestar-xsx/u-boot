@@ -40,7 +40,7 @@ static const char d1h_gpsr_name[D1H_FPC_GPSR_NUM][10] = {
     "pfc-gpsr2",
     "pfc-gpsr3",
     "pfc-gpsr4",
-}
+};
 
 static const char d1h_ipsr_name[D1H_FPC_IPSR_NUM][10] = {
     "pfc-ipsr0",
@@ -52,18 +52,18 @@ static const char d1h_ipsr_name[D1H_FPC_IPSR_NUM][10] = {
     "pfc-ipsr6",
     "pfc-ipsr7",
     "pfc-ipsr8",    
-}
+};
 
 static const char d1h_mod_name[D1H_FPC_MOD_NUM][13] = {
     "pfc-mod-sel",
     "pfc-mod-sel2",  
-}
+};
 
 static const char d1h_ioctrl_name[D1H_FPC_IOCTRL_NUM][12] = {
     "pfc-ioctrl0",
     "pfc-ioctrl1",  
     "pfc-ioctrl2",  
-}
+};
 
 static const char d1h_pupr_name[D1H_FPC_PUPR_NUM][10] = {
     "pfc-pupr0",
@@ -71,10 +71,11 @@ static const char d1h_pupr_name[D1H_FPC_PUPR_NUM][10] = {
     "pfc-pupr2",
     "pfc-pupr3",
     "pfc-pupr4",
-}
+};
 
 static int d1h_pfc_set_state(struct udevice *dev, struct udevice *config)
 {
+	debug("%s: set state\n", __func__);
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(config);
 	struct d1h_pfc_plat *plat = dev_get_plat(dev);
@@ -181,7 +182,6 @@ static int d1h_pfc_set_state(struct udevice *dev, struct udevice *config)
 			}
 		}
 	}
-
 	return 0;
 }
 
@@ -211,7 +211,7 @@ static int d1h_pfc_probe(struct udevice *dev)
 					   ofnode_get_name(node),
 					   node, &cdev);
 	}
-
+	debug("%s: d1h pfc probe called\n", __func__);
 	return 0;
 }
 
@@ -227,4 +227,5 @@ U_BOOT_DRIVER(d1h_pfc) = {
 	.probe		= d1h_pfc_probe,
 	.plat_auto	= sizeof(struct d1h_pfc_plat),
 	.ops		= &d1h_pfc_ops,
+	.flags          = DM_FLAG_PRE_RELOC,
 };
