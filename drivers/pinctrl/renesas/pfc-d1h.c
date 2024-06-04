@@ -77,14 +77,13 @@ static int d1h_pfc_set_state(struct udevice *dev, struct udevice *config)
 {
 	debug("%s: set state\n", __func__);
 	const void *blob = gd->fdt_blob;
-	int node = dev_of_offset(config);
+	int node = fdt_path_offset(blob, config->node_.np->full_name);
 	struct d1h_pfc_plat *plat = dev_get_plat(dev);
 	u32 cells[128];
 	u32 reg_tmp;
-	u16 bank, line, func;
-	int i, k, count, bidir;
+	int i, k, count;
 	/***Set the ipsr register***/
-    for(k = 0; k < D1H_FPC_IPSR_NUM; k++){
+	for(k = 0; k < D1H_FPC_IPSR_NUM; k++){
 		count = fdtdec_get_int_array_count(blob, node, (char *)(&d1h_ipsr_name[k][0]),
 					   cells, ARRAY_SIZE(cells));
 		if (count > 0) {
@@ -98,6 +97,7 @@ static int d1h_pfc_set_state(struct udevice *dev, struct udevice *config)
 				for (i = 0; i < count/2 ; i++){
 					writel(cells[i*2],(plat->base + D1H_OFFSET_PMMR));
 					writel(cells[i*2 + 1],(plat->base + D1H_OFFSET_IPSR + 4*k));
+					debug("Set IPSR%d(%x) mask/val: 0x%x/0x%x \n",k,(plat->base + D1H_OFFSET_IPSR + 4*k),cells[i*2],cells[i*2 + 1]);
 				}
 			}
 		}
@@ -118,6 +118,7 @@ static int d1h_pfc_set_state(struct udevice *dev, struct udevice *config)
 				for (i = 0; i < count/2 ; i++){
 					writel(cells[i*2],(plat->base + D1H_OFFSET_PMMR));
 					writel(cells[i*2 + 1],(plat->base + D1H_OFFSET_MOD + 4*k));
+					debug("Set MOD_SEL%d(%x) mask/val: 0x%x/0x%x \n",k,(plat->base + D1H_OFFSET_MOD + 4*k),cells[i*2],cells[i*2 + 1]);
 				}
 			}
 		}
@@ -138,6 +139,7 @@ static int d1h_pfc_set_state(struct udevice *dev, struct udevice *config)
 				for (i = 0; i < count/2 ; i++){
 					writel(cells[i*2],(plat->base + D1H_OFFSET_PMMR));
 					writel(cells[i*2 + 1],(plat->base + D1H_OFFSET_IOCTRL + 4*k));
+					debug("Set IOCTRL%d(%x) mask/val: 0x%x/0x%x \n",k,(plat->base + D1H_OFFSET_IOCTRL + 4*k),cells[i*2],cells[i*2 + 1]);
 				}
 			}
 		}
@@ -158,6 +160,7 @@ static int d1h_pfc_set_state(struct udevice *dev, struct udevice *config)
 				for (i = 0; i < count/2 ; i++){
 					reg_tmp = readl(plat->base + D1H_OFFSET_PUPR + 4*k) & cells[i*2];//set mask
 					writel((reg_tmp | cells[i*2 + 1]),(plat->base + D1H_OFFSET_PUPR + 4*k));
+					debug("Set PUPR%d(%x) mask/val: 0x%x/0x%x \n",k,(plat->base + D1H_OFFSET_PUPR + 4*k),cells[i*2],cells[i*2 + 1]);
 				}
 			}
 		}
@@ -178,6 +181,7 @@ static int d1h_pfc_set_state(struct udevice *dev, struct udevice *config)
 				for (i = 0; i < count/2 ; i++){
 					writel(cells[i*2],(plat->base + D1H_OFFSET_PMMR));
 					writel(cells[i*2 + 1],(plat->base + D1H_OFFSET_GPSR + 4*k));
+					debug("Set GPSR%d(%x) mask/val: 0x%x/0x%x \n",k,(plat->base + D1H_OFFSET_GPSR + 4*k),cells[i*2],cells[i*2 + 1]);
 				}
 			}
 		}
@@ -194,13 +198,10 @@ static int d1h_pfc_probe(struct udevice *dev)
 	struct d1h_pfc_plat *plat = dev_get_plat(dev);
 	fdt_addr_t addr_base;
 	ofnode node;
-
 	addr_base = dev_read_addr(dev);
 	if (addr_base == FDT_ADDR_T_NONE)
 		return -EINVAL;
-
 	plat->base = (void __iomem *)addr_base;
-
 	dev_for_each_subnode(node, dev) {
 		struct udevice *cdev;
 

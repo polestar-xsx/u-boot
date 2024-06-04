@@ -70,16 +70,15 @@
         compatible = "renesas,pfc-r7s721063","d1h,pfc";
         reg = <0xe6060000 0x250>;
         status = "okay";
-
         /* Use pin configuration 0 */
         /* Alternative configurations e.g. pinctrl-1 are currently not supported */
         pinctrl-names = "default";
-        pinctrl-0 = <&unused_pins>;
+        pinctrl-0= <&unused_pins>;
     };
     serial2:scif2@e6e58000 {
         compatible = "renesas,scif-r7s721063", "renesas,scif","d1h,serial";
         pinctrl-names = "default";
-        pinctrl-0 = <&scif2_pins>;
+        pinctrl-0= <&scif2_pins>;
         /* SCIF0 base address */
         reg = <0xe6e58000 0x40>;
         status = "okay";
@@ -130,7 +129,7 @@
 &pfc {
     scif2_pins: serial2 {
         /* MOD_SEL[7:6]=2'b00 */
-        pfc-mod-sel2 = < 0xFFFFFF3F 0x00000000 >;
+        pfc-mod-sel2= < 0xFFFFFF3F 0x00000000 >;
 
         /*
             SCIF2_RXD
@@ -138,20 +137,20 @@
             SCIF2_TXD
             IP8[14:12]=3'b000
         */
-        pfc-ipsr8 = < 0xFFFF81FF 0x00000000 >;
+        pfc-ipsr8=< 0xFFFF81FF 0x00000000 >;
 
         /* GP4[3:2] select function by IP8 */
-        pfc-gpsr4 = < 0xFFFFFFF3 0x0000000C >;
+        pfc-gpsr4=< 0xFFFFFFF3 0x0000000C >;
     };
 
     unused_pins:unusedpin {
         /*GP0_12 GP3_21 GP3_30 GP3_31 GP4_0 not used,pull up/down disable;GP0_31 nand reset,high pull up, GP1_0 nand wp low pull up disable*/
-        pfc-gpsr0 = < 0x7FFFEFFF 0x00000000 >;
-        pfc-gpsr1 = < 0xFFFFFFFE 0x00000000 >;
-        pfc-gpsr3 = < 0x3FDFFFFF 0x00000000 >;
-        pfc-gpsr4 = < 0xFFFFFFFE 0x00000000 >;
-        pfc-pupr1 = < 0xFFFFFFFE 0x00000000 >;
-        pfc-pupr3 = < 0xFDFFFFFF 0x00000000 >;
-        pfc-pupr4 = < 0xFFFFFFE3 0x00000000 >;
+        pfc-gpsr0=< 0x7FFFEFFF 0x00000000 >;
+        pfc-gpsr1=< 0xFFFFFFFE 0x00000000 >;
+        pfc-gpsr3=< 0x3FDFFFFF 0x00000000 >;
+        pfc-gpsr4=< 0xFFFFFFFE 0x00000000 >;
+        pfc-pupr1=< 0xFFFFFFFE 0x00000000 >;
+        pfc-pupr3=< 0xFDFFFFFF 0x00000000 >;
+        pfc-pupr4=< 0xFFFFFFE3 0x00000000 >;
     };
 };
