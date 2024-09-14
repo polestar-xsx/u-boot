@@ -75,6 +75,47 @@
         pinctrl-names = "default";
         pinctrl-0= <&unused_pins>;
     };
+
+    gpio0: gpio@e6050000 {
+        compatible = "renesas,d1h-gpio";
+        reg = <0 0xe6050000 0 0x50>;
+        #gpio-cells = <2>;
+        gpio-controller;
+        gpio-ranges = <&pfc 0 0 32>;
+	};
+
+    gpio1: gpio@e6051000 {
+        compatible = "renesas,d1h-gpio";
+        reg = <0 0xe6051000 0 0x50>;
+        #gpio-cells = <2>;
+        gpio-controller;
+        gpio-ranges = <&pfc 0 32 32>;
+	};
+
+    gpio2: gpio@e6052000 {
+        compatible = "renesas,d1h-gpio";
+        reg = <0 0xe6052000 0 0x50>;
+        #gpio-cells = <2>;
+        gpio-controller;
+        gpio-ranges = <&pfc 0 64 32>;
+	};
+
+    gpio3: gpio@e6053000 {
+        compatible = "renesas,d1h-gpio";
+        reg = <0 0xe6053000 0 0x50>;
+        #gpio-cells = <2>;
+        gpio-controller;
+        gpio-ranges = <&pfc 0 96 32>;
+	};
+
+    gpio4: gpio@e6054000 {
+        compatible = "renesas,d1h-gpio";
+        reg = <0 0xe6054000 0 0x50>;
+        #gpio-cells = <2>;
+        gpio-controller;
+        gpio-ranges = <&pfc 0 128 4>;
+	};
+
     serial2:scif2@e6e58000 {
         compatible = "renesas,scif-r7s721063", "renesas,scif","d1h,serial";
         pinctrl-names = "default";
