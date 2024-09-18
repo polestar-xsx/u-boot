@@ -112,7 +112,8 @@ static int d1h_gpio_direction_output(struct udevice *dev, unsigned offset,
 static int d1h_gpio_get_function(struct udevice *dev, unsigned offset)
 {
 	struct d1h_gpio_priv *priv = dev_get_priv(dev);
-
+	uint32_t inoutsel = readl(priv->regs + GPIO_INOUTSEL);
+	debug("%s:inoutsel reg:0x%x val:0x%x offset:%d  \n", __func__,(priv->regs + GPIO_INOUTSEL),inoutsel,offset);
 	if (readl(priv->regs + GPIO_INOUTSEL) & BIT(offset))
 		return GPIOF_OUTPUT;
 	else

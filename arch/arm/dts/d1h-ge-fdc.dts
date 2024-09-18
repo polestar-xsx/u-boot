@@ -78,40 +78,35 @@
 
     gpio0: gpio@e6050000 {
         compatible = "renesas,d1h-gpio";
-        reg = <0 0xe6050000 0 0x50>;
-        #gpio-cells = <2>;
+        reg = <0xe6050000 0x50>;
         gpio-controller;
         gpio-ranges = <&pfc 0 0 32>;
 	};
 
     gpio1: gpio@e6051000 {
         compatible = "renesas,d1h-gpio";
-        reg = <0 0xe6051000 0 0x50>;
-        #gpio-cells = <2>;
+        reg = <0xe6051000 0x50>;
         gpio-controller;
         gpio-ranges = <&pfc 0 32 32>;
 	};
 
     gpio2: gpio@e6052000 {
         compatible = "renesas,d1h-gpio";
-        reg = <0 0xe6052000 0 0x50>;
-        #gpio-cells = <2>;
+        reg = <0xe6052000 0x50>;
         gpio-controller;
         gpio-ranges = <&pfc 0 64 32>;
 	};
 
     gpio3: gpio@e6053000 {
         compatible = "renesas,d1h-gpio";
-        reg = <0 0xe6053000 0 0x50>;
-        #gpio-cells = <2>;
+        reg = <0xe6053000 0x50>;
         gpio-controller;
         gpio-ranges = <&pfc 0 96 32>;
 	};
 
     gpio4: gpio@e6054000 {
         compatible = "renesas,d1h-gpio";
-        reg = <0 0xe6054000 0 0x50>;
-        #gpio-cells = <2>;
+        reg = <0xe6054000 0x50>;
         gpio-controller;
         gpio-ranges = <&pfc 0 128 4>;
 	};
